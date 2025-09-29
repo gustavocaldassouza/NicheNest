@@ -125,7 +125,7 @@ pipeline {
     
     post {
         always {
-            node {
+            script {
                 // Clean up Docker images
                 sh 'docker image prune -f'
                 echo "🧹 Cleaned up Docker images"
