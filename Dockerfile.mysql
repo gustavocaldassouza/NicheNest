@@ -1,0 +1,18 @@
+# MySQL Dockerfile for NicheNest
+FROM mysql:8.0
+
+# Set environment variables
+ENV MYSQL_ROOT_PASSWORD=root
+ENV MYSQL_DATABASE=nichenest
+ENV MYSQL_USER=nichenest
+ENV MYSQL_PASSWORD=nichenest123
+
+# Copy schema file
+COPY data/schema.sql /docker-entrypoint-initdb.d/
+
+# Expose MySQL port
+EXPOSE 3306
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+    CMD mysqladmin ping -h localhost -u root -p${MYSQL_ROOT_PASSWORD} || exit 1
