@@ -3,11 +3,11 @@
 define('DB_HOST', '127.0.0.1');
 define('DB_NAME', 'nichenest');
 define('DB_USER', 'root');
-define('DB_PASS', 'root');
+define('DB_PASS', '');
 
 // Application configuration
 define('APP_NAME', 'NicheNest');
-define('APP_URL', 'http://localhost/nichenest/public');
+define('APP_URL', 'http://localhost:8000');
 define('UPLOAD_PATH', 'uploads/');
 
 // Database connection using PDO

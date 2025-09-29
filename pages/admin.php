@@ -1,8 +1,8 @@
 <?php
 session_start();
-require_once '../includes/config.php';
-require_once '../includes/functions.php';
-require_once '../includes/auth.php';
+require_once __DIR__ . '/../includes/config.php';
+require_once __DIR__ . '/../includes/functions.php';
+require_once __DIR__ . '/../includes/auth.php';
 
 requireAdmin();
 
@@ -53,7 +53,7 @@ $post_count = $pdo->query("SELECT COUNT(*) FROM posts")->fetchColumn();
 $reply_count = $pdo->query("SELECT COUNT(*) FROM replies")->fetchColumn();
 
 $page_title = "Admin Panel - NicheNest";
-include '../includes/header.php';
+include __DIR__ . '/../includes/header.php';
 ?>
 
 <div class="container mt-4">
@@ -217,4 +217,4 @@ include '../includes/header.php';
     </div>
 </div>
 
-<?php include '../includes/footer.php'; ?>
+<?php include __DIR__ . '/../includes/footer.php'; ?>

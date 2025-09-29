@@ -1,12 +1,12 @@
 <?php
 session_start();
-require_once '../includes/config.php';
-require_once '../includes/functions.php';
-require_once '../includes/auth.php';
+require_once __DIR__ . '/../includes/config.php';
+require_once __DIR__ . '/../includes/functions.php';
+require_once __DIR__ . '/../includes/auth.php';
 
 // Redirect if already logged in
 if (isLoggedIn()) {
-    redirect('/');
+    redirect('/pages/profile.php');
 }
 
 $errors = [];
@@ -35,7 +35,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($user && verifyPassword($password, $user['password'])) {
             loginUser($user['id']);
             setFlashMessage('Welcome back, ' . htmlspecialchars($user['username']) . '!', 'success');
-            redirect('/');
+            redirect('/pages/profile.php');
         } else {
             $errors[] = 'Invalid email or password';
         }
@@ -43,7 +43,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 $page_title = "Login - NicheNest";
-include '../includes/header.php';
+include __DIR__ . '/../includes/header.php';
 ?>
 
 <div class="container mt-5">
@@ -90,4 +90,4 @@ include '../includes/header.php';
     </div>
 </div>
 
-<?php include '../includes/footer.php'; ?>
+<?php include __DIR__ . '/../includes/footer.php'; ?>

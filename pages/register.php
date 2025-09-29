@@ -1,12 +1,12 @@
 <?php
 session_start();
-require_once '../includes/config.php';
-require_once '../includes/functions.php';
-require_once '../includes/auth.php';
+require_once __DIR__ . '/../includes/config.php';
+require_once __DIR__ . '/../includes/functions.php';
+require_once __DIR__ . '/../includes/auth.php';
 
 // Redirect if already logged in
 if (isLoggedIn()) {
-    redirect('/');
+    redirect('/pages/profile.php');
 }
 
 $errors = [];
@@ -57,7 +57,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt->execute([$username, $email, $hashedPassword, $username]);
 
             setFlashMessage('Registration successful! Please log in.', 'success');
-            redirect('login.php');
+            redirect('/pages/login.php');
         } catch (PDOException $e) {
             $errors[] = 'Registration failed. Please try again.';
         }
@@ -65,7 +65,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 $page_title = "Register - NicheNest";
-include '../includes/header.php';
+include __DIR__ . '/../includes/header.php';
 ?>
 
 <div class="container mt-5">
@@ -124,4 +124,4 @@ include '../includes/header.php';
     </div>
 </div>
 
-<?php include '../includes/footer.php'; ?>
+<?php include __DIR__ . '/../includes/footer.php'; ?>
