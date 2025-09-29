@@ -29,7 +29,7 @@ services:
     container_name: nichenest-app
     restart: unless-stopped
     ports:
-      - "8080:80"
+      - "8081:80"
     environment:
       - DB_HOST=mysql
       - DB_NAME=nichenest
@@ -54,7 +54,7 @@ services:
     container_name: nichenest-phpmyadmin
     restart: unless-stopped
     ports:
-      - "8081:80"
+      - "8082:80"
     environment:
       PMA_HOST: mysql
       PMA_USER: root
