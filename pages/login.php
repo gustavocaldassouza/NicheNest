@@ -8,7 +8,7 @@ require_once __DIR__ . '/../includes/auth.php';
 if (isLoggedIn()) {
     redirect('/pages/profile.php');
 }
-
+echo "test";
 $errors = [];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
