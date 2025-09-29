@@ -1,0 +1,9 @@
+RewriteEngine On
+
+# Route pages requests to the pages directory
+RewriteRule ^pages/(.*)$ ../pages/$1 [L]
+
+# Route other requests normally
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^(.*)$ index.php [QSA,L]
