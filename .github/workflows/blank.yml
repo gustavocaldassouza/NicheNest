@@ -92,7 +92,7 @@ jobs:
           zip -r nichenest-dev.zip . -x "*.git*" "*.github*" "*.md" "composer.*" "node_modules/*" "*.log"
 
       - name: Upload deployment artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: nichenest-dev
           path: nichenest-dev.zip
@@ -130,7 +130,7 @@ jobs:
           zip -r nichenest-uat.zip . -x "*.git*" "*.github*" "*.md" "composer.*" "node_modules/*" "*.log"
 
       - name: Upload deployment artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: nichenest-uat
           path: nichenest-uat.zip
@@ -180,7 +180,7 @@ jobs:
           zip -r nichenest-prod.zip . -x "*.git*" "*.log" "*.tmp"
 
       - name: Upload production artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: nichenest-prod
           path: nichenest-prod.zip
