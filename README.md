@@ -33,30 +33,31 @@ Before running NicheNest, ensure you have the following installed:
 
 ## 🚀 Quick Start
 
-### Option 1: Using Docker Compose (Recommended)
+### Option 1: Using Docker MySQL (Recommended)
 
-1. **Clone the repository**:
-
-   ```bash
-   git clone https://github.com/gustavocaldassouza/NicheNest
-   cd NicheNest
-   ```
-
-2. **Start all services with Docker Compose**:
+1. **Build and run MySQL with Docker**:
 
    ```bash
-   # Copy environment file
-   cp env.example .env
+   # Build the custom MySQL image
+   docker build -f Dockerfile.mysql -t nichenest-mysql .
    
-   # Start services
-   docker-compose up -d
+   # Run the MySQL container
+   docker run -d --name nichenest-mysql -p 3306:3306 nichenest-mysql
    ```
 
-3. **Access the application**:
-   - **Application**: <http://localhost:8080>
-   - **phpMyAdmin**: <http://localhost:8081>
+2. **Start the PHP development server**:
 
-### Option 2: Using Docker (Manual Setup)
+   ```bash
+   php -S localhost:8000 router.php
+   ```
+
+3. **Open your browser** and navigate to:
+
+   ```
+   http://localhost:8000
+   ```
+
+### Option 2: Using Standard Docker MySQL
 
 1. **Start MySQL with Docker**:
 
@@ -64,25 +65,25 @@ Before running NicheNest, ensure you have the following installed:
    docker run --name nichenest-mysql -e MYSQL_ROOT_PASSWORD=root -e MYSQL_DATABASE=nichenest -p 3306:3306 -d mysql:8.0
    ```
 
-3. **Import the database schema**:
+2. **Import the database schema**:
 
    ```bash
    docker exec -i nichenest-mysql mysql -uroot -proot nichenest < data/schema.sql
    ```
 
-4. **Start the PHP development server**:
+3. **Start the PHP development server**:
 
    ```bash
    php -S localhost:8000 router.php
    ```
 
-5. **Open your browser** and navigate to:
+4. **Open your browser** and navigate to:
 
    ```
    http://localhost:8000
    ```
 
-### Option 2: Local MySQL Installation
+### Option 3: Local MySQL Installation
 
 1. **Set up MySQL** and create a database named `nichenest`
 2. **Import the schema**:
@@ -97,6 +98,50 @@ Before running NicheNest, ensure you have the following installed:
    ```bash
    php -S localhost:8000 router.php
    ```
+
+## 🐳 Docker Management
+
+### Building the MySQL Image
+
+```bash
+# Build the custom MySQL image
+docker build -f Dockerfile.mysql -t nichenest-mysql .
+```
+
+### Running the Container
+
+```bash
+# Run the MySQL container
+docker run -d --name nichenest-mysql -p 3306:3306 nichenest-mysql
+```
+
+### Container Management
+
+```bash
+# Check container status
+docker ps
+
+# View container logs
+docker logs nichenest-mysql
+
+# Stop the container
+docker stop nichenest-mysql
+
+# Remove the container
+docker rm nichenest-mysql
+
+# Connect to MySQL
+docker exec -it nichenest-mysql mysql -u nichenest -pnichenest123 nichenest
+```
+
+### Database Connection Details
+
+- **Host**: localhost
+- **Port**: 3306
+- **Database**: nichenest
+- **Username**: nichenest
+- **Password**: nichenest123
+- **Root Password**: root
 
 ## 🔧 Configuration
 
@@ -119,26 +164,6 @@ define('APP_URL', 'http://localhost:8000');
 define('UPLOAD_PATH', 'uploads/');
 ```
 
-## 👥 Default Accounts
-
-The application comes with pre-configured test accounts:
-
-### Admin Account
-
-- **Email**: `admin@nichenest.local`
-- **Password**: `admin123`
-- **Role**: Administrator
-
-### Test Users
-
-- **Email**: `john@example.com`
-- **Password**: `admin123`
-- **Display Name**: John Doe
-
-- **Email**: `jane@example.com`
-- **Password**: `admin123`
-- **Display Name**: Jane Smith
-
 ## 🔒 Security Features
 
 - **Password Hashing**: Uses PHP's `password_hash()` with bcrypt
@@ -146,20 +171,6 @@ The application comes with pre-configured test accounts:
 - **XSS Prevention**: Input sanitization and output escaping
 - **Session Security**: Secure session management
 - **File Upload Security**: Restricted file types and validation
-
-## 🐳 Docker & Jenkins Deployment
-
-### Docker Setup
-
-NicheNest is fully containerized for easy deployment:
-
-```bash
-# Development
-docker-compose up -d
-
-# Production
-docker-compose -f docker-compose.prod.yml up -d
-```
 
 ## 🎨 Customization
 
