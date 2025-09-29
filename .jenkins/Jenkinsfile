@@ -1,0 +1,152 @@
+pipeline {
+    agent any
+    
+    environment {
+        DOCKER_IMAGE = 'nichenest'
+        DOCKER_TAG = "${BUILD_NUMBER}"
+        MYSQL_ROOT_PASSWORD = credentials('mysql-root-password')
+        MYSQL_DATABASE = 'nichenest'
+        MYSQL_USER = 'nichenest'
+        MYSQL_PASSWORD = credentials('mysql-password')
+    }
+    
+    stages {
+        stage('Checkout') {
+            steps {
+                checkout scm
+                echo "✅ Code checked out successfully"
+            }
+        }
+        
+        stage('Build Docker Image') {
+            steps {
+                script {
+                    def image = docker.build("${DOCKER_IMAGE}:${DOCKER_TAG}")
+                    echo "✅ Docker image built: ${DOCKER_IMAGE}:${DOCKER_TAG}"
+                }
+            }
+        }
+        
+        stage('Test Docker Image') {
+            steps {
+                script {
+                    // Run container for testing
+                    def testContainer = docker.run(
+                        image: "${DOCKER_IMAGE}:${DOCKER_TAG}",
+                        detach: true,
+                        ports: ['8080:80'],
+                        env: [
+                            "DB_HOST=mysql",
+                            "DB_NAME=${MYSQL_DATABASE}",
+                            "DB_USER=${MYSQL_USER}",
+                            "DB_PASS=${MYSQL_PASSWORD}"
+                        ]
+                    )
+                    
+                    // Wait for container to start
+                    sh 'sleep 30'
+                    
+                    // Test if application is responding
+                    sh 'curl -f http://localhost:8080/ || exit 1'
+                    
+                    // Clean up test container
+                    testContainer.stop()
+                    testContainer.remove()
+                    
+                    echo "✅ Docker image test passed"
+                }
+            }
+        }
+        
+        stage('Security Scan') {
+            steps {
+                script {
+                    // Run Trivy security scan
+                    sh '''
+                        docker run --rm -v /var/run/docker.sock:/var/run/docker.sock \
+                        aquasec/trivy image --exit-code 0 --severity HIGH,CRITICAL \
+                        ${DOCKER_IMAGE}:${DOCKER_TAG}
+                    '''
+                    echo "✅ Security scan completed"
+                }
+            }
+        }
+        
+        stage('Push to Registry') {
+            when {
+                anyOf {
+                    branch 'main'
+                    branch 'dev'
+                }
+            }
+        }
+        
+        stage('Deploy to Development') {
+            when {
+                branch 'dev'
+            }
+            steps {
+                script {
+                    sh '''
+                        # Deploy to development environment
+                        docker-compose -f docker-compose.yml down
+                        docker-compose -f docker-compose.yml up -d
+                    '''
+                    echo "✅ Deployed to development environment"
+                }
+            }
+        }
+        
+        stage('Deploy to Production') {
+            when {
+                branch 'main'
+            }
+            steps {
+                script {
+                    sh '''
+                        # Deploy to production environment
+                        docker-compose -f docker-compose.prod.yml down
+                        docker-compose -f docker-compose.prod.yml up -d
+                    '''
+                    echo "✅ Deployed to production environment"
+                }
+            }
+        }
+        
+        stage('Health Check') {
+            steps {
+                script {
+                    sh '''
+                        # Wait for services to be ready
+                        sleep 60
+                        
+                        # Check application health
+                        curl -f http://localhost:8080/ || exit 1
+                        
+                        # Check database connection
+                        docker exec nichenest-mysql mysql -u${MYSQL_USER} -p${MYSQL_PASSWORD} -e "SELECT 1" ${MYSQL_DATABASE}
+                    '''
+                    echo "✅ Health check passed"
+                }
+            }
+        }
+    }
+    
+    post {
+        always {
+            // Clean up Docker images
+            sh 'docker image prune -f'
+            echo "🧹 Cleaned up Docker images"
+        }
+        
+        success {
+            echo "🎉 Pipeline completed successfully!"
+            // Send notification (Slack, email, etc.)
+        }
+        
+        failure {
+            echo "❌ Pipeline failed!"
+            // Send failure notification
+        }
+    }
+}

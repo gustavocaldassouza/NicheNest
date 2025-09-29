@@ -33,7 +33,7 @@ Before running NicheNest, ensure you have the following installed:
 
 ## 🚀 Quick Start
 
-### Option 1: Using Docker (Recommended)
+### Option 1: Using Docker Compose (Recommended)
 
 1. **Clone the repository**:
 
@@ -42,7 +42,23 @@ Before running NicheNest, ensure you have the following installed:
    cd NicheNest
    ```
 
-2. **Start MySQL with Docker**:
+2. **Start all services with Docker Compose**:
+
+   ```bash
+   # Copy environment file
+   cp env.example .env
+   
+   # Start services
+   docker-compose up -d
+   ```
+
+3. **Access the application**:
+   - **Application**: <http://localhost:8080>
+   - **phpMyAdmin**: <http://localhost:8081>
+
+### Option 2: Using Docker (Manual Setup)
+
+1. **Start MySQL with Docker**:
 
    ```bash
    docker run --name nichenest-mysql -e MYSQL_ROOT_PASSWORD=root -e MYSQL_DATABASE=nichenest -p 3306:3306 -d mysql:8.0
@@ -130,6 +146,20 @@ The application comes with pre-configured test accounts:
 - **XSS Prevention**: Input sanitization and output escaping
 - **Session Security**: Secure session management
 - **File Upload Security**: Restricted file types and validation
+
+## 🐳 Docker & Jenkins Deployment
+
+### Docker Setup
+
+NicheNest is fully containerized for easy deployment:
+
+```bash
+# Development
+docker-compose up -d
+
+# Production
+docker-compose -f docker-compose.prod.yml up -d
+```
 
 ## 🎨 Customization
 

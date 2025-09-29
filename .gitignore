@@ -63,3 +63,20 @@ coverage/
 # Temporary files
 tmp/
 temp/
+
+# Docker
+.dockerignore
+docker-compose.override.yml
+docker-compose.local.yml
+
+# Jenkins
+.jenkins/workspace/
+.jenkins/logs/
+
+# Backup files
+backup_*.sql
+*.backup
+
+# Production secrets
+.env.production
+.env.staging
