@@ -123,45 +123,6 @@ The application comes with pre-configured test accounts:
 - **Password**: `admin123`
 - **Display Name**: Jane Smith
 
-## 📁 Project Structure
-
-```
-NicheNest/
-├── data/
-│   └── schema.sql              # Database schema and sample data
-├── includes/
-│   ├── auth.php                # Authentication functions
-│   ├── config.php              # Database and app configuration
-│   ├── functions.php           # Utility functions
-│   ├── header.php              # Common header template
-│   └── footer.php              # Common footer template
-├── pages/
-│   ├── admin.php               # Admin panel
-│   ├── login.php               # User login page
-│   ├── logout.php              # User logout handler
-│   ├── posts.php               # Community posts page
-│   ├── profile.php             # User profile page
-│   └── register.php            # User registration page
-├── public/
-│   ├── css/
-│   │   └── style.css           # Custom styles
-│   ├── js/
-│   │   └── script.js           # JavaScript functionality
-│   ├── uploads/                # File upload directory
-│   └── index.php               # Main homepage
-├── router.php                  # Custom PHP router
-└── README.md                   # This file
-```
-
-## 🌐 Available Routes
-
-- **Home**: `http://localhost:8000/`
-- **Login**: `http://localhost:8000/pages/login.php`
-- **Register**: `http://localhost:8000/pages/register.php`
-- **Posts**: `http://localhost:8000/pages/posts.php`
-- **Profile**: `http://localhost:8000/pages/profile.php`
-- **Admin**: `http://localhost:8000/pages/admin.php`
-
 ## 🔒 Security Features
 
 - **Password Hashing**: Uses PHP's `password_hash()` with bcrypt
@@ -187,56 +148,8 @@ NicheNest/
 - Header and footer templates in `includes/` directory
 - Consistent navigation and layout across all pages
 
-## 🐛 Troubleshooting
-
-### Common Issues
-
-1. **Database Connection Error**:
-   - Ensure MySQL is running
-   - Check database credentials in `config.php`
-   - Verify database exists and schema is imported
-
-2. **Page Not Found Errors**:
-   - Make sure you're using the router: `php -S localhost:8000 router.php`
-   - Check that all files are in the correct directories
-
-3. **Permission Errors**:
-   - Ensure `public/uploads/` directory is writable
-   - Check file permissions on the project directory
-
-### Debug Mode
-
-To enable debug mode, modify `includes/config.php`:
-
-```php
-// Add this line for development
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
-```
-
-## 🤝 Contributing
-
-This project is maintained by the Elite Team for LaSalle College Montreal's TechWeek 2025 event.
-
-### Development Guidelines
-
-1. Follow PSR-12 coding standards
-2. Use meaningful variable and function names
-3. Add comments for complex logic
-4. Test all functionality before submitting changes
-
 ## 📄 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 🆘 Support
-
-For support or questions:
-
-- Check the troubleshooting section above
-- Review the code comments for implementation details
-- Contact the development team
-
----
 
 **NicheNest** - Building focused communities for shared interests. 🌟
