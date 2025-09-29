@@ -125,9 +125,11 @@ pipeline {
     
     post {
         always {
-            // Clean up Docker images
-            sh 'docker image prune -f'
-            echo "🧹 Cleaned up Docker images"
+            node {
+                // Clean up Docker images
+                sh 'docker image prune -f'
+                echo "🧹 Cleaned up Docker images"
+            }
         }
         
         success {
