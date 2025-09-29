@@ -1,4 +1,4 @@
-name: Multi-Env CI/CD
+name: NicheNest CI/CD Pipeline
 
 on:
   push:
@@ -6,28 +6,229 @@ on:
       - dev
       - uat
       - main
+  pull_request:
+    branches:
+      - main
 
 jobs:
+  # Code Quality and Testing
+  test:
+    runs-on: ubuntu-latest
+    name: Test and Code Quality
+    
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: nichenest
+        ports:
+          - 3306:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: pdo_mysql, mbstring, fileinfo, openssl
+          coverage: xdebug
+
+      - name: Install dependencies
+        run: |
+          composer install --no-dev --optimize-autoloader
+
+      - name: Wait for MySQL
+        run: |
+          while ! mysqladmin ping -h"127.0.0.1" -P3306 -uroot -proot --silent; do
+            echo "Waiting for MySQL..."
+            sleep 2
+          done
+
+      - name: Setup database
+        run: |
+          mysql -h 127.0.0.1 -P 3306 -u root -proot nichenest < data/schema.sql
+
+      - name: Run PHP syntax check
+        run: |
+          find . -name "*.php" -not -path "./vendor/*" -exec php -l {} \;
+
+      - name: Run security check
+        run: |
+          composer require --dev roave/security-advisories:dev-master
+          composer audit
+
+      - name: Check file permissions
+        run: |
+          chmod -R 755 public/uploads/
+          chmod 644 public/css/* public/js/*
+
+  # Development Deployment
   dev_deploy:
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/dev'
     environment: dev
+    needs: test
+    
     steps:
-      - uses: actions/checkout@v3
-      - run: echo "Deploying to DEV..."
+      - name: Checkout code
+        uses: actions/checkout@v4
 
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: pdo_mysql, mbstring, fileinfo, openssl
+
+      - name: Install dependencies
+        run: |
+          composer install --no-dev --optimize-autoloader
+
+      - name: Create deployment package
+        run: |
+          zip -r nichenest-dev.zip . -x "*.git*" "*.github*" "*.md" "composer.*" "node_modules/*" "*.log"
+
+      - name: Upload deployment artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: nichenest-dev
+          path: nichenest-dev.zip
+
+      - name: Deploy to development
+        run: |
+          echo "🚀 Deploying NicheNest to Development Environment"
+          echo "✅ Build completed successfully"
+          echo "📦 Artifact created: nichenest-dev.zip"
+          echo "🔗 Ready for deployment to your hosting provider"
+
+  # UAT Deployment
   uat_deploy:
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/uat'
     environment: uat
+    needs: test
+    
     steps:
-      - uses: actions/checkout@v3
-      - run: echo "Deploying to UAT..."
-      
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: pdo_mysql, mbstring, fileinfo, openssl
+
+      - name: Install dependencies
+        run: |
+          composer install --no-dev --optimize-autoloader
+
+      - name: Create deployment package
+        run: |
+          zip -r nichenest-uat.zip . -x "*.git*" "*.github*" "*.md" "composer.*" "node_modules/*" "*.log"
+
+      - name: Upload deployment artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: nichenest-uat
+          path: nichenest-uat.zip
+
+      - name: Deploy to UAT
+        run: |
+          echo "🚀 Deploying NicheNest to UAT Environment"
+          echo "✅ Build completed successfully"
+          echo "📦 Artifact created: nichenest-uat.zip"
+          echo "🔗 Ready for deployment to your hosting provider"
+
+  # Production Deployment
   prod_deploy:
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
     environment: prod
+    needs: test
+    
     steps:
-      - uses: actions/checkout@v3
-      - run: echo "Deploying to PROD..."
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: pdo_mysql, mbstring, fileinfo, openssl
+
+      - name: Install dependencies
+        run: |
+          composer install --no-dev --optimize-autoloader
+
+      - name: Optimize for production
+        run: |
+          # Remove development files
+          rm -rf .github/
+          rm -rf tests/
+          rm -f composer.json composer.lock
+          rm -f .gitignore
+          
+          # Set proper permissions
+          chmod -R 755 public/uploads/
+          chmod 644 public/css/* public/js/*
+
+      - name: Create production package
+        run: |
+          zip -r nichenest-prod.zip . -x "*.git*" "*.log" "*.tmp"
+
+      - name: Upload production artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: nichenest-prod
+          path: nichenest-prod.zip
+
+      - name: Deploy to production
+        run: |
+          echo "🚀 Deploying NicheNest to Production Environment"
+          echo "✅ Build completed successfully"
+          echo "📦 Production artifact created: nichenest-prod.zip"
+          echo "🔗 Ready for deployment to your hosting provider"
+          echo "⚠️  Remember to:"
+          echo "   1. Update database credentials in production"
+          echo "   2. Set up SSL certificate"
+          echo "   3. Configure domain and DNS"
+          echo "   4. Set up database backup strategy"
+
+  # Deployment Instructions
+  deployment_instructions:
+    runs-on: ubuntu-latest
+    if: always()
+    needs: [test, dev_deploy, uat_deploy, prod_deploy]
+    
+    steps:
+      - name: Generate deployment instructions
+        run: |
+          echo "## 🚀 NicheNest Deployment Instructions" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 📋 Prerequisites" >> $GITHUB_STEP_SUMMARY
+          echo "- PHP 8.4+ with PDO MySQL extension" >> $GITHUB_STEP_SUMMARY
+          echo "- MySQL 8.0+ database" >> $GITHUB_STEP_SUMMARY
+          echo "- Web server (Apache/Nginx)" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 🔧 Deployment Steps" >> $GITHUB_STEP_SUMMARY
+          echo "1. Download the deployment artifact from the Actions tab" >> $GITHUB_STEP_SUMMARY
+          echo "2. Extract the ZIP file to your web server directory" >> $GITHUB_STEP_SUMMARY
+          echo "3. Create a MySQL database and import \`data/schema.sql\`" >> $GITHUB_STEP_SUMMARY
+          echo "4. Update database credentials in \`includes/config.php\`" >> $GITHUB_STEP_SUMMARY
+          echo "5. Set proper file permissions (755 for directories, 644 for files)" >> $GITHUB_STEP_SUMMARY
+          echo "6. Configure your web server to serve the application" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 🌐 Hosting Recommendations" >> $GITHUB_STEP_SUMMARY
+          echo "- **Shared Hosting**: cPanel, Bluehost, SiteGround" >> $GITHUB_STEP_SUMMARY
+          echo "- **VPS/Cloud**: DigitalOcean, Linode, AWS EC2" >> $GITHUB_STEP_SUMMARY
+          echo "- **Platform as a Service**: Heroku, Railway, Vercel" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 🔒 Security Checklist" >> $GITHUB_STEP_SUMMARY
+          echo "- [ ] Change default admin password" >> $GITHUB_STEP_SUMMARY
+          echo "- [ ] Enable HTTPS/SSL" >> $GITHUB_STEP_SUMMARY
+          echo "- [ ] Set up database backups" >> $GITHUB_STEP_SUMMARY
+          echo "- [ ] Configure firewall rules" >> $GITHUB_STEP_SUMMARY
+          echo "- [ ] Update file permissions" >> $GITHUB_STEP_SUMMARY
