@@ -7,7 +7,6 @@ require_once 'includes/auth.php';
 $page_title = "NicheNest - Micro Community Platform";
 include 'includes/header.php';
 ?>
-Like
 <div class="hero-section bg-primary text-white text-center py-5 mb-4">
     <div class="container">
         <h1 class="display-4">Welcome to NicheNest</h1>
