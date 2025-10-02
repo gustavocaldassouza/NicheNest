@@ -118,7 +118,8 @@ include '../includes/header.php';
                         <div class="alert alert-success"><?php echo htmlspecialchars($success); ?></div>
                     <?php endif; ?>
 
-                    <form method="POST" action="">
+                    <form method="POST" action="" enctype="multipart/form-data">
+
                         <div class="row">
                             <div class="col-md-6">
                                 <div class="mb-3">
@@ -148,6 +149,19 @@ include '../includes/header.php';
                             <label for="bio" class="form-label">Bio</label>
                             <textarea class="form-control" id="bio" name="bio" rows="4"><?php echo htmlspecialchars($_POST['bio'] ?? $user['bio'] ?? ''); ?></textarea>
                         </div>
+                      <div class="mb-3">
+                          <label for="avatar" class="form-label">Avatar</label>
+                          <input type="file" class="form-control" id="avatar" name="avatar" accept="image/*" onchange="previewAvatar(event)">
+                      <div class="mt-2">
+                       <?php if (!empty($user['avatar'])): ?>
+                       <img id="avatarPreview" src="../uploads/<?php echo htmlspecialchars($user['avatar']); ?>" 
+                        alt="Avatar" class="img-thumbnail" width="120">
+                      <?php  else: ?>
+                    <img id="avatarPreview" src="https://via.placeholder.com/120" 
+                      alt="Avatar Preview" class="img-thumbnail" width="120">
+                   <?php endif; ?>
+                       </div>
+                 </div>
 
                         <hr>
                         <h5>Change Password (Optional)</h5>
