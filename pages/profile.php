@@ -10,7 +10,7 @@ $user = getCurrentUser();
 $errors = [];
 $success = '';
 
-// Handle profile update
+// Handle profile updates
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $display_name = sanitizeInput($_POST['display_name']);
     $bio = sanitizeInput($_POST['bio']);
@@ -33,6 +33,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } else {
             $errors[] = "Invalid file type. Only JPG, JPEG, PNG & GIF allowed.";
         }
+
     }
 
     $current_password = $_POST['current_password'] ?? '';
