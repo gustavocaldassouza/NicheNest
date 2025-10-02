@@ -1,11 +1,78 @@
 // NicheNest JavaScript functionality
 
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
+
+    // Like button functionality with AJAX
+    const likeButtons = document.querySelectorAll('.like-btn');
+
+    likeButtons.forEach(button => {
+        button.addEventListener('click', function (e) {
+            e.preventDefault(); // Prevent any default behavior
+
+            const postId = this.getAttribute('data-post-id');
+            const isCurrentlyLiked = this.getAttribute('data-liked') === 'true';
+
+            // Disable button during request
+            this.disabled = true;
+            const originalHTML = this.innerHTML;
+            this.innerHTML = '<i class="bi bi-hourglass-split me-1"></i><span class="like-text">Loading...</span>';
+
+            // Create FormData for AJAX request
+            const formData = new FormData();
+            formData.append('post_id', postId);
+
+            // Make AJAX request - use absolute path
+            fetch('/ajax/like_post.php', {
+                method: 'POST',
+                body: formData
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Update button text and style
+                        const isLiked = data.liked;
+                        this.innerHTML = `
+                            <i class="bi bi-heart${isLiked ? '-fill' : ''} me-1"></i>
+                            <span class="like-text">${isLiked ? 'Unlike' : 'Like'}</span>
+                            <span class="badge bg-${isLiked ? 'danger' : 'success'} ms-1 rounded-pill" style="font-size: 0.7em;">
+                                ${data.likeCount}
+                            </span>
+                        `;
+                        this.className = `btn btn-sm btn-outline-${isLiked ? 'danger' : 'success'} like-btn position-relative`;
+                        this.setAttribute('data-liked', isLiked.toString());
+
+                        // Add pulse animation for visual feedback
+                        this.classList.add('liked');
+                        setTimeout(() => {
+                            this.classList.remove('liked');
+                        }, 300);
+
+                        // Show success message
+                        showAlert(data.message, 'success');
+                    } else {
+                        // Show error message
+                        showAlert(data.message, 'danger');
+                        // Restore original button state
+                        this.innerHTML = originalHTML;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showAlert('An error occurred. Please try again.', 'danger');
+                    // Restore original button state
+                    this.innerHTML = originalHTML;
+                })
+                .finally(() => {
+                    // Re-enable button
+                    this.disabled = false;
+                });
+        });
+    });
 
     // Reply form toggle functionality
     const replyToggleButtons = document.querySelectorAll('.reply-toggle');
     replyToggleButtons.forEach(button => {
-        button.addEventListener('click', function() {
+        button.addEventListener('click', function () {
             const postId = this.getAttribute('data-post-id');
             const replyForm = document.getElementById('reply-form-' + postId);
 
@@ -23,7 +90,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Cancel reply functionality
     const cancelReplyButtons = document.querySelectorAll('.cancel-reply');
     cancelReplyButtons.forEach(button => {
-        button.addEventListener('click', function() {
+        button.addEventListener('click', function () {
             const replyForm = this.closest('.reply-form');
             if (replyForm) {
                 replyForm.classList.add('d-none');
@@ -37,7 +104,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Form validation enhancement
     const forms = document.querySelectorAll('form');
     forms.forEach(form => {
-        form.addEventListener('submit', function(e) {
+        form.addEventListener('submit', function (e) {
             const requiredFields = form.querySelectorAll('[required]');
             let hasErrors = false;
 
@@ -83,7 +150,7 @@ document.addEventListener('DOMContentLoaded', function() {
             counter.innerHTML = `<span class="char-count">0</span>/${maxLength}`;
             textarea.parentNode.appendChild(counter);
 
-            textarea.addEventListener('input', function() {
+            textarea.addEventListener('input', function () {
                 const charCount = counter.querySelector('.char-count');
                 charCount.textContent = this.value.length;
 
@@ -99,7 +166,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Smooth scrolling for anchor links
     const anchorLinks = document.querySelectorAll('a[href^="#"]');
     anchorLinks.forEach(link => {
-        link.addEventListener('click', function(e) {
+        link.addEventListener('click', function (e) {
             e.preventDefault();
             const targetId = this.getAttribute('href').substring(1);
             const targetElement = document.getElementById(targetId);
@@ -122,7 +189,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Confirmation dialogs for destructive actions
     const destructiveButtons = document.querySelectorAll('[data-confirm]');
     destructiveButtons.forEach(button => {
-        button.addEventListener('click', function(e) {
+        button.addEventListener('click', function (e) {
             const confirmMessage = this.getAttribute('data-confirm');
             if (!confirm(confirmMessage)) {
                 e.preventDefault();

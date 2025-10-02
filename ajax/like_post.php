@@ -3,15 +3,12 @@
 error_reporting(0);
 ini_set('display_errors', 0);
 
-// Start output buffering to catch any unexpected output
-ob_start();
-
 session_start();
-require_once '../includes/config.php';
-require_once '../includes/functions.php';
-require_once '../includes/auth.php';
+require_once 'includes/config.php';
+require_once 'includes/functions.php';
+require_once 'includes/auth.php';
 
-// Clear any output buffer content
+// Clear any output buffer content (config.php starts ob_start())
 ob_clean();
 
 // Set content type to JSON
@@ -39,6 +36,7 @@ if ($post_id <= 0) {
 }
 
 try {
+
     // Check if user already liked this post
     $stmt = $pdo->prepare("SELECT id FROM likes WHERE post_id = ? AND user_id = ?");
     $stmt->execute([$post_id, $user_id]);
@@ -67,8 +65,14 @@ try {
         'message' => $liked ? 'Post liked!' : 'Post unliked!'
     ]);
 } catch (PDOException $e) {
+    // Clear any output buffer content
+    ob_clean();
+    header('Content-Type: application/json');
     echo json_encode(['success' => false, 'message' => 'Failed to update like. Please try again.']);
 } catch (Exception $e) {
+    // Clear any output buffer content
+    ob_clean();
+    header('Content-Type: application/json');
     echo json_encode(['success' => false, 'message' => 'An unexpected error occurred. Please try again.']);
 }
 

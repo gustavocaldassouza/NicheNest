@@ -53,30 +53,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_reply'])) {
         }
     }
 }
-// Handle like post 
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['like_post'])) {
-    $post_id = (int)$_POST['post_id'];
-    $user_id = getCurrentUserId();
-
-    try {
-        // check if user already liked
-        $stmt = $pdo->prepare("SELECT id FROM likes WHERE post_id = ? AND user_id = ?");
-        $stmt->execute([$post_id, $user_id]);
-
-        if ($stmt->rowCount() === 0) {
-            // insert new like
-            $stmt = $pdo->prepare("INSERT INTO likes (post_id, user_id) VALUES (?, ?)");
-            $stmt->execute([$post_id, $user_id]);
-        } else {
-            // unlike (toggle behavior)
-            $stmt = $pdo->prepare("DELETE FROM likes WHERE post_id = ? AND user_id = ?");
-            $stmt->execute([$post_id, $user_id]);
-        }
-    } catch (PDOException $e) {
-        $errors[] = 'Failed to like post. Please try again.';
-    }
-}
-
 
 // Get all posts with user info
 $stmt = $pdo->prepare("
@@ -166,17 +142,24 @@ include '../includes/header.php';
                             $userLiked = $stmt->rowCount() > 0;
                             ?>
 
-                            <form method="POST" style="display:inline;">
-                                <input type="hidden" name="post_id" value="<?php echo $post['id']; ?>">
-                                <button type="submit" name="like_post" class="btn btn-sm btn-outline-<?php echo $userLiked ? 'danger' : 'success'; ?>">
-                                    <?php echo $userLiked ? 'Unlike' : 'Like'; ?> (<?php echo $likeCount; ?>)
-                                </button>
-                            </form>
-
+                            <!-- Like Button (no form wrapper) -->
+                            <button type="button"
+                                class="btn btn-sm btn-outline-<?php echo $userLiked ? 'danger' : 'success'; ?> like-btn position-relative"
+                                data-post-id="<?php echo $post['id']; ?>"
+                                data-liked="<?php echo $userLiked ? 'true' : 'false'; ?>"
+                                style="transition: all 0.3s ease; border-radius: 20px;">
+                                <i class="bi bi-heart<?php echo $userLiked ? '-fill' : ''; ?> me-1"></i>
+                                <span class="like-text"><?php echo $userLiked ? 'Unlike' : 'Like'; ?></span>
+                                <span class="badge bg-<?php echo $userLiked ? 'danger' : 'success'; ?> ms-1 rounded-pill" style="font-size: 0.7em;">
+                                    <?php echo $likeCount; ?>
+                                </span>
+                            </button>
 
                             <!-- Reply Button -->
-                            <button class="btn btn-sm btn-outline-primary reply-toggle" data-post-id="<?php echo $post['id']; ?>">
-                                <i class="bi bi-reply"></i> Reply
+                            <button class="btn btn-sm btn-outline-primary reply-toggle"
+                                data-post-id="<?php echo $post['id']; ?>"
+                                style="transition: all 0.3s ease; border-radius: 20px;">
+                                <i class="bi bi-reply me-1"></i> Reply
                             </button>
 
                             <!-- Reply Form (hidden by default) -->

@@ -12,6 +12,16 @@ if ($path === '/' || $path === '/index.php') {
     // Serve the main index page
     chdir(__DIR__);
     require_once 'public/index.php';
+} elseif (strpos($path, '/ajax/') === 0) {
+    // Route AJAX requests
+    $ajaxFile = __DIR__ . $path;
+    if (file_exists($ajaxFile)) {
+        chdir(__DIR__);
+        require_once $ajaxFile;
+    } else {
+        http_response_code(404);
+        echo json_encode(['success' => false, 'message' => 'AJAX endpoint not found']);
+    }
 } elseif (strpos($path, '/pages/') === 0) {
     // Route pages requests
     $pageFile = __DIR__ . $path;
