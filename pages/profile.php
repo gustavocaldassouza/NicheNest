@@ -14,6 +14,27 @@ $success = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $display_name = sanitizeInput($_POST['display_name']);
     $bio = sanitizeInput($_POST['bio']);
+        // Handle avatar upload
+    $avatar = $user['avatar']; // keep current by default
+    if (!empty($_FILES['avatar']['name'])) {
+        $target_dir = "../uploads/";
+        $file_name = time() . "_" . basename($_FILES["avatar"]["name"]);
+        $target_file = $target_dir . $file_name;
+        $imageFileType = strtolower(pathinfo($target_file, PATHINFO_EXTENSION));
+
+        // basic checks
+        $allowed_types = ['jpg','jpeg','png','gif'];
+        if (in_array($imageFileType, $allowed_types)) {
+            if (move_uploaded_file($_FILES["avatar"]["tmp_name"], $target_file)) {
+                $avatar = $file_name;
+            } else {
+                $errors[] = "Failed to upload avatar.";
+            }
+        } else {
+            $errors[] = "Invalid file type. Only JPG, JPEG, PNG & GIF allowed.";
+        }
+    }
+
     $current_password = $_POST['current_password'] ?? '';
     $new_password = $_POST['new_password'] ?? '';
     $confirm_password = $_POST['confirm_password'] ?? '';
