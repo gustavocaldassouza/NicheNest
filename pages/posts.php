@@ -53,6 +53,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_reply'])) {
         }
     }
 }
+// Handle like post 
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['like_post'])) {
+    $post_id = (int)$_POST['post_id'];
+    $user_id = getCurrentUserId();
+
+    try {
+        // check if user already liked
+        $stmt = $pdo->prepare("SELECT id FROM post_likes WHERE post_id = ? AND user_id = ?");
+        $stmt->execute([$post_id, $user_id]);
+
+        if ($stmt->rowCount() === 0) {
+            // insert new like
+            $stmt = $pdo->prepare("INSERT INTO post_likes (post_id, user_id) VALUES (?, ?)");
+            $stmt->execute([$post_id, $user_id]);
+        } else {
+            // unlike (toggle behavior)
+            $stmt = $pdo->prepare("DELETE FROM post_likes WHERE post_id = ? AND user_id = ?");
+            $stmt->execute([$post_id, $user_id]);
+        }
+    } catch (PDOException $e) {
+        $errors[] = 'Failed to like post. Please try again.';
+    }
+}
+
 
 // Get all posts with user info
 $stmt = $pdo->prepare("
@@ -130,6 +154,25 @@ include '../includes/header.php';
                         <div class="card-body">
                             <h5 class="card-title"><?php echo htmlspecialchars($post['title']); ?></h5>
                             <p class="card-text"><?php echo nl2br(htmlspecialchars($post['content'])); ?></p>
+                            <?php
+         // get like count
+        $stmt = $pdo->prepare("SELECT COUNT(*) as total FROM post_likes WHERE post_id = ?");
+        $stmt->execute([$post['id']]);
+        $likeCount = $stmt->fetch(PDO::FETCH_ASSOC)['total'] ?? 0;
+
+        // check if current user liked this post
+        $stmt = $pdo->prepare("SELECT id FROM post_likes WHERE post_id = ? AND user_id = ?");
+        $stmt->execute([$post['id'], getCurrentUserId()]);
+        $userLiked = $stmt->rowCount() > 0;
+        ?>
+
+        <form method="POST" style="display:inline;">
+          <input type="hidden" name="post_id" value="<?php echo $post['id']; ?>">
+          <button type="submit" name="like_post" class="btn btn-sm btn-outline-<?php echo $userLiked ? 'danger' : 'success'; ?>">
+        <?php echo $userLiked ? 'Unlike' : 'Like'; ?> (<?php echo $likeCount; ?>)
+    </button>
+     </form>
+
 
                             <!-- Reply Button -->
                             <button class="btn btn-sm btn-outline-primary reply-toggle" data-post-id="<?php echo $post['id']; ?>">
@@ -198,3 +241,13 @@ include '../includes/header.php';
 </div>
 
 <?php include '../includes/footer.php'; ?>
+ <!--================ code to add Table ====================== -->
+ <!-- CREATE TABLE IF NOT EXISTS post_likes (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    post_id INT NOT NULL,
+    user_id INT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE KEY unique_like (post_id, user_id),
+    FOREIGN KEY (post_id) REFERENCES posts(id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+); -->
