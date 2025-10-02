@@ -52,17 +52,19 @@
                     <?php if (isLoggedIn()): ?>
                         <?php $user = getCurrentUser(); ?>
                         <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
-                                <?php echo htmlspecialchars($user['display_name'] ?? $user['username']); ?>
-                            </a>
-                            <ul class="dropdown-menu">
-                                <li><a class="dropdown-item" href="/pages/profile.php">My Profile</a></li>
-                                <li>
-                                    <hr class="dropdown-divider">
-                                </li>
-                                <li><a class="dropdown-item" href="/pages/logout.php">Logout</a></li>
-                            </ul>
-                        </li>
+                           <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" role="button" data-bs-toggle="dropdown">
+        <!-- avatar on the left -->
+        <img src="<?php echo !empty($user['avatar']) ? '/public/uploads/' . htmlspecialchars($user['avatar']) : 'https://via.placeholder.com/35'; ?>" 
+             alt="Avatar" class="rounded-circle me-2" width="35" height="35">
+        <!-- display name -->
+        <?php echo htmlspecialchars($user['display_name'] ?? $user['username']); ?>
+    </a>
+    <ul class="dropdown-menu">
+        <li><a class="dropdown-item" href="/pages/profile.php">My Profile</a></li>
+        <li><hr class="dropdown-divider"></li>
+        <li><a class="dropdown-item" href="/pages/logout.php">Logout</a></li>
+    </ul>
+</li>
                     <?php else: ?>
                         <li class="nav-item">
                             <a class="nav-link" href="/pages/login.php">Login</a>

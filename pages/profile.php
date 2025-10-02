@@ -17,9 +17,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Handle avatar upload
     $avatar = $user['avatar']; // keep current by default
     if (!empty($_FILES['avatar']['name'])) {
-        $target_dir = "../uploads/";
-        $file_name = time() . "_" . basename($_FILES["avatar"]["name"]);
-        $target_file = $target_dir . $file_name;
+       $target_dir = "../public/uploads/"; // correct folder
+if (!is_dir($target_dir)) {
+    mkdir($target_dir, 0755, true); // create folder if it doesn't exist
+}
+$file_name = time() . "_" . basename($_FILES["avatar"]["name"]);
+$target_file = $target_dir . $file_name;
         $imageFileType = strtolower(pathinfo($target_file, PATHINFO_EXTENSION));
 
         // basic checks
@@ -68,17 +71,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (empty($errors)) {
         try {
             if (!empty($new_password)) {
-                // Update with new password
-                $stmt = $pdo->prepare("UPDATE users SET display_name = ?, bio = ?, password = ? WHERE id = ?");
-                $stmt->execute([$display_name, $bio, hashPassword($new_password), getCurrentUserId()]);
-                $success = 'Profile and password updated successfully!';
-            } else {
-                // Update without password change
-                $stmt = $pdo->prepare("UPDATE users SET display_name = ?, bio = ? WHERE id = ?");
-                $stmt->execute([$display_name, $bio, getCurrentUserId()]);
-                $success = 'Profile updated successfully!';
-            }
-
+    // Update with new password
+    $stmt = $pdo->prepare("UPDATE users SET display_name = ?, bio = ?, password = ?, avatar = ? WHERE id = ?");
+    $stmt->execute([$display_name, $bio, hashPassword($new_password), $avatar, getCurrentUserId()]);
+    $success = 'Profile and password updated successfully!';
+} else {
+    // Update without password change
+    $stmt = $pdo->prepare("UPDATE users SET display_name = ?, bio = ?, avatar = ? WHERE id = ?");
+    $stmt->execute([$display_name, $bio, $avatar, getCurrentUserId()]);
+    $success = 'Profile updated successfully!';
+}
             // Refresh user data
             $user = getCurrentUser();
         } catch (PDOException $e) {
