@@ -3,10 +3,11 @@ error_reporting(0);
 ini_set('display_errors', 0);
 
 session_start();
-require_once 'includes/config.php';
-require_once 'includes/functions.php';
-require_once 'includes/auth.php';
-require_once 'includes/notifications.php';
+$basePath = dirname(__DIR__);
+require_once $basePath . '/includes/config.php';
+require_once $basePath . '/includes/functions.php';
+require_once $basePath . '/includes/auth.php';
+require_once $basePath . '/includes/notifications.php';
 
 ob_clean();
 

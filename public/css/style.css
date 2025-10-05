@@ -342,6 +342,98 @@ footer {
     font-style: italic;
 }
 
+/* Reply styling */
+.reply-item {
+    transition: all 0.3s ease;
+    border-left: 3px solid #e9ecef !important;
+    background-color: #f8f9fa;
+    border-radius: 0 8px 8px 0;
+    padding: 0.75rem 1rem !important;
+    margin-bottom: 0.75rem !important;
+}
+
+.reply-item:hover {
+    border-left-color: var(--primary-color) !important;
+    background-color: #e3f2fd;
+    transform: translateX(2px);
+}
+
+.reply-item .text-muted {
+    font-size: 0.8rem;
+    margin-bottom: 0.5rem;
+}
+
+.reply-item p {
+    margin-bottom: 0;
+    line-height: 1.5;
+}
+
+.replies-container {
+    margin-top: 1rem;
+}
+
+.replies-container h6 {
+    color: var(--primary-color);
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.reply-form {
+    background-color: #f8f9fa;
+    padding: 1rem;
+    border-radius: 8px;
+    border-left: 4px solid var(--primary-color);
+    margin-top: 0.75rem;
+    transition: all 0.3s ease;
+}
+
+.reply-form:hover {
+    background-color: #e3f2fd;
+    border-left-color: #0056b3;
+}
+
+.reply-form textarea {
+    border-radius: 6px;
+    border: 1px solid #dee2e6;
+    transition: all 0.3s ease;
+}
+
+.reply-form textarea:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+}
+
+.reply-form .btn {
+    border-radius: 6px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.reply-form .btn-success {
+    background-color: var(--success-color);
+    border-color: var(--success-color);
+}
+
+.reply-form .btn-success:hover {
+    background-color: #157347;
+    border-color: #146c43;
+    transform: translateY(-1px);
+}
+
+.reply-form .btn-secondary {
+    background-color: var(--secondary-color);
+    border-color: var(--secondary-color);
+}
+
+.reply-form .btn-secondary:hover {
+    background-color: #5c636a;
+    border-color: #565e64;
+    transform: translateY(-1px);
+}
+
 @media (max-width: 768px) {
     .notification-dropdown {
         min-width: 280px !important;
@@ -354,5 +446,14 @@ footer {
 
     .notification-item .small {
         font-size: 0.7rem;
+    }
+
+    .reply-item {
+        padding: 0.5rem 0.75rem !important;
+        margin-bottom: 0.5rem !important;
+    }
+
+    .reply-form {
+        padding: 0.75rem;
     }
 }
