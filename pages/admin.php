@@ -8,7 +8,6 @@ requireAdmin();
 
 $message = '';
 
-// Handle user actions
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_POST['toggle_user_status'])) {
         $user_id = (int)$_POST['user_id'];
@@ -23,22 +22,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (isset($_POST['delete_post'])) {
         $post_id = (int)$_POST['post_id'];
 
-        // Delete replies first (foreign key constraint)
         $stmt = $pdo->prepare("DELETE FROM replies WHERE post_id = ?");
         $stmt->execute([$post_id]);
 
-        // Delete post
         $stmt = $pdo->prepare("DELETE FROM posts WHERE id = ?");
         $stmt->execute([$post_id]);
         $message = "Post and its replies deleted successfully.";
     }
 }
 
-// Get all users
 $stmt = $pdo->query("SELECT id, username, email, display_name, role, status, created_at FROM users ORDER BY created_at DESC");
 $users = $stmt->fetchAll();
 
-// Get all posts with user info
 $stmt = $pdo->query("
     SELECT p.id, p.title, p.content, p.created_at, u.username, u.display_name 
     FROM posts p 
@@ -47,7 +42,6 @@ $stmt = $pdo->query("
 ");
 $posts = $stmt->fetchAll();
 
-// Get counts
 $user_count = $pdo->query("SELECT COUNT(*) FROM users")->fetchColumn();
 $post_count = $pdo->query("SELECT COUNT(*) FROM posts")->fetchColumn();
 $reply_count = $pdo->query("SELECT COUNT(*) FROM replies")->fetchColumn();
@@ -66,7 +60,6 @@ include '../includes/header.php';
         </div>
     <?php endif; ?>
 
-    <!-- Dashboard Stats -->
     <div class="row mb-4">
         <div class="col-md-4">
             <div class="card bg-primary text-white">
@@ -115,7 +108,6 @@ include '../includes/header.php';
         </div>
     </div>
 
-    <!-- Users Management -->
     <div class="card mb-4">
         <div class="card-header">
             <h4>User Management</h4>
@@ -158,8 +150,8 @@ include '../includes/header.php';
                                         <form method="POST" class="d-inline">
                                             <input type="hidden" name="user_id" value="<?php echo $user['id']; ?>">
                                             <input type="hidden" name="current_status" value="<?php echo $user['status'] ?? 'active'; ?>">
-                                            <button type="submit" name="toggle_user_status" 
-                                                    class="btn btn-sm btn-<?php echo ($user['status'] ?? 'active') === 'active' ? 'warning' : 'success'; ?>">
+                                            <button type="submit" name="toggle_user_status"
+                                                class="btn btn-sm btn-<?php echo ($user['status'] ?? 'active') === 'active' ? 'warning' : 'success'; ?>">
                                                 <?php echo ($user['status'] ?? 'active') === 'active' ? 'Suspend' : 'Activate'; ?>
                                             </button>
                                         </form>
@@ -173,7 +165,6 @@ include '../includes/header.php';
         </div>
     </div>
 
-    <!-- Posts Management -->
     <div class="card">
         <div class="card-header">
             <h4>Post Management</h4>

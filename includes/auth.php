@@ -1,24 +1,17 @@
 <?php
-// Authentication functions for NicheNest
 
-/**
- * Check if user is logged in
- */
-function isLoggedIn() {
+function isLoggedIn()
+{
     return isset($_SESSION['user_id']);
 }
 
-/**
- * Get current user ID
- */
-function getCurrentUserId() {
+function getCurrentUserId()
+{
     return $_SESSION['user_id'] ?? null;
 }
 
-/**
- * Get current user info
- */
-function getCurrentUser() {
+function getCurrentUser()
+{
     if (!isLoggedIn()) {
         return null;
     }
@@ -29,26 +22,20 @@ function getCurrentUser() {
     return $stmt->fetch();
 }
 
-/**
- * Login user
- */
-function loginUser($userId) {
+function loginUser($userId)
+{
     $_SESSION['user_id'] = $userId;
     $_SESSION['login_time'] = time();
 }
 
-/**
- * Logout user
- */
-function logoutUser() {
+function logoutUser()
+{
     session_destroy();
     session_start();
 }
 
-/**
- * Check if user has admin role
- */
-function isAdmin() {
+function isAdmin()
+{
     if (!isLoggedIn()) {
         return false;
     }
@@ -61,24 +48,19 @@ function isAdmin() {
     return $user && $user['role'] === 'admin';
 }
 
-/**
- * Require login for page access
- */
-function requireLogin() {
+function requireLogin()
+{
     if (!isLoggedIn()) {
         setFlashMessage('Please log in to access this page.', 'warning');
         redirect('../pages/login.php');
     }
 }
 
-/**
- * Require admin access for page
- */
-function requireAdmin() {
+function requireAdmin()
+{
     requireLogin();
     if (!isAdmin()) {
         setFlashMessage('Access denied. Admin privileges required.', 'danger');
         redirect('../public/index.php');
     }
 }
-?>

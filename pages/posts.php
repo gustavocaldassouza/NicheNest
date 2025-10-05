@@ -3,13 +3,13 @@ session_start();
 require_once '../includes/config.php';
 require_once '../includes/functions.php';
 require_once '../includes/auth.php';
+require_once '../includes/notifications.php';
 
 requireLogin();
 
 $errors = [];
 $success = '';
 
-// Handle new post submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_post'])) {
     $title = sanitizeInput($_POST['title']);
     $content = sanitizeInput($_POST['content']);
@@ -26,7 +26,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_post'])) {
             $stmt = $pdo->prepare("INSERT INTO posts (user_id, title, content, created_at) VALUES (?, ?, ?, NOW())");
             $stmt->execute([getCurrentUserId(), $title, $content]);
             $success = 'Post created successfully!';
-            // Clear form data
             $_POST = [];
         } catch (PDOException $e) {
             $errors[] = 'Failed to create post. Please try again.';
@@ -34,7 +33,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_post'])) {
     }
 }
 
-// Handle new reply submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_reply'])) {
     $post_id = (int)$_POST['post_id'];
     $content = sanitizeInput($_POST['reply_content']);
@@ -47,6 +45,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_reply'])) {
         try {
             $stmt = $pdo->prepare("INSERT INTO replies (post_id, user_id, content, created_at) VALUES (?, ?, ?, NOW())");
             $stmt->execute([$post_id, getCurrentUserId(), $content]);
+            $reply_id = $pdo->lastInsertId();
+
+            createReplyNotification($post_id, $reply_id, getCurrentUserId());
+
             $success = 'Reply added successfully!';
         } catch (PDOException $e) {
             $errors[] = 'Failed to add reply. Please try again.';
@@ -54,7 +56,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_reply'])) {
     }
 }
 
-// Get all posts with user info
 $stmt = $pdo->prepare("
     SELECT p.*, u.username, u.display_name 
     FROM posts p 
@@ -69,7 +70,6 @@ include '../includes/header.php';
 ?>
 
 <div class="container mt-4">
-    <!-- Create New Post -->
     <div class="card mb-4">
         <div class="card-header">
             <h5><i class="bi bi-plus-circle"></i> Create New Post</h5>
@@ -106,7 +106,6 @@ include '../includes/header.php';
         </div>
     </div>
 
-    <!-- Posts List -->
     <div class="row">
         <div class="col-lg-8">
             <h4>Recent Posts</h4>
@@ -131,18 +130,15 @@ include '../includes/header.php';
                             <h5 class="card-title"><?php echo htmlspecialchars($post['title']); ?></h5>
                             <p class="card-text"><?php echo nl2br(htmlspecialchars($post['content'])); ?></p>
                             <?php
-                            // get like count
                             $stmt = $pdo->prepare("SELECT COUNT(*) as total FROM likes WHERE post_id = ?");
                             $stmt->execute([$post['id']]);
                             $likeCount = $stmt->fetch(PDO::FETCH_ASSOC)['total'] ?? 0;
 
-                            // check if current user liked this post
                             $stmt = $pdo->prepare("SELECT id FROM likes WHERE post_id = ? AND user_id = ?");
                             $stmt->execute([$post['id'], getCurrentUserId()]);
                             $userLiked = $stmt->rowCount() > 0;
                             ?>
 
-                            <!-- Like Button (no form wrapper) -->
                             <button type="button"
                                 class="btn btn-sm btn-outline-<?php echo $userLiked ? 'danger' : 'success'; ?> like-btn position-relative"
                                 data-post-id="<?php echo $post['id']; ?>"
@@ -155,14 +151,12 @@ include '../includes/header.php';
                                 </span>
                             </button>
 
-                            <!-- Reply Button -->
                             <button class="btn btn-sm btn-outline-primary reply-toggle"
                                 data-post-id="<?php echo $post['id']; ?>"
                                 style="transition: all 0.3s ease; border-radius: 20px;">
                                 <i class="bi bi-reply me-1"></i> Reply
                             </button>
 
-                            <!-- Reply Form (hidden by default) -->
                             <form method="POST" class="reply-form mt-3 d-none" id="reply-form-<?php echo $post['id']; ?>">
                                 <input type="hidden" name="post_id" value="<?php echo $post['id']; ?>">
                                 <div class="mb-2">
@@ -172,7 +166,6 @@ include '../includes/header.php';
                                 <button type="button" class="btn btn-sm btn-secondary ms-2 cancel-reply">Cancel</button>
                             </form>
 
-                            <!-- Replies -->
                             <?php
                             $stmt = $pdo->prepare("
                                 SELECT r.*, u.username, u.display_name 
