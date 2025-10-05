@@ -4,7 +4,6 @@ require_once '../includes/config.php';
 require_once '../includes/functions.php';
 require_once '../includes/auth.php';
 
-// Redirect if already logged in
 if (isLoggedIn()) {
     redirect('/');
 }
@@ -15,7 +14,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $email = sanitizeInput($_POST['email']);
     $password = $_POST['password'];
 
-    // Validation
     if (empty($email)) {
         $errors[] = 'Email is required';
     } elseif (!isValidEmail($email)) {
@@ -26,7 +24,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $errors[] = 'Password is required';
     }
 
-    // If no validation errors, check credentials
     if (empty($errors)) {
         $stmt = $pdo->prepare("SELECT id, username, password FROM users WHERE email = ?");
         $stmt->execute([$email]);

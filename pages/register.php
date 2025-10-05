@@ -4,7 +4,6 @@ require_once '../includes/config.php';
 require_once '../includes/functions.php';
 require_once '../includes/auth.php';
 
-// Redirect if already logged in
 if (isLoggedIn()) {
     redirect('/');
 }
@@ -17,7 +16,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $password = $_POST['password'];
     $confirm_password = $_POST['confirm_password'];
 
-    // Validation
     if (empty($username)) {
         $errors[] = 'Username is required';
     } elseif (strlen($username) < 3) {
@@ -40,7 +38,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $errors[] = 'Passwords do not match';
     }
 
-    // Check if username or email already exists
     if (empty($errors)) {
         $stmt = $pdo->prepare("SELECT id FROM users WHERE username = ? OR email = ?");
         $stmt->execute([$username, $email]);
@@ -49,7 +46,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
-    // If no errors, create user
     if (empty($errors)) {
         try {
             $hashedPassword = hashPassword($password);

@@ -1,3 +1,9 @@
+<?php
+require_once 'config.php';
+require_once 'functions.php';
+require_once 'auth.php';
+require_once 'notifications.php';
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -6,18 +12,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?php echo isset($page_title) ? $page_title : 'NicheNest'; ?></title>
 
-    <!-- Bootstrap 5 CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 
-    <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
 
-    <!-- Custom CSS -->
     <link rel="stylesheet" href="/public/css/style.css">
 </head>
 
 <body>
-    <!-- Navigation -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <div class="container">
             <a class="navbar-brand fw-bold" href="/">
@@ -51,6 +53,32 @@
                 <ul class="navbar-nav">
                     <?php if (isLoggedIn()): ?>
                         <?php $user = getCurrentUser(); ?>
+                        <li class="nav-item dropdown me-3">
+                            <a class="nav-link position-relative" href="#" id="notificationDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="bi bi-bell"></i>
+                                <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" id="notificationBadge" style="display: none;">
+                                    0
+                                </span>
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end notification-dropdown" style="min-width: 300px; max-height: 400px; overflow-y: auto;">
+                                <li class="dropdown-header d-flex justify-content-between align-items-center">
+                                    <span>Notifications</span>
+                                    <button class="btn btn-sm btn-outline-secondary" id="markAllReadBtn" style="display: none;">Mark all read</button>
+                                </li>
+                                <li>
+                                    <hr class="dropdown-divider">
+                                </li>
+                                <div id="notificationsList">
+                                    <li class="dropdown-item text-center text-muted">
+                                        <i class="bi bi-hourglass-split me-2"></i>Loading notifications...
+                                    </li>
+                                </div>
+                                <li>
+                                    <hr class="dropdown-divider">
+                                </li>
+                                <li><a class="dropdown-item text-center" href="#" id="viewAllNotifications">View all notifications</a></li>
+                            </ul>
+                        </li>
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
                                 <?php echo htmlspecialchars($user['display_name'] ?? $user['username']); ?>
@@ -76,7 +104,6 @@
         </div>
     </nav>
 
-    <!-- Flash Messages -->
     <?php
     $flash = getFlashMessage();
     if ($flash):
@@ -89,5 +116,4 @@
         </div>
     <?php endif; ?>
 
-    <!-- Main Content -->
     <main>

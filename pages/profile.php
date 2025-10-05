@@ -10,7 +10,6 @@ $user = getCurrentUser();
 $errors = [];
 $success = '';
 
-// Handle profile update
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $display_name = sanitizeInput($_POST['display_name']);
     $bio = sanitizeInput($_POST['bio']);
@@ -18,17 +17,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $new_password = $_POST['new_password'] ?? '';
     $confirm_password = $_POST['confirm_password'] ?? '';
 
-    // Validate display name
     if (empty($display_name)) {
         $errors[] = 'Display name is required';
     }
 
-    // If changing password, validate
     if (!empty($new_password)) {
         if (empty($current_password)) {
             $errors[] = 'Current password is required to change password';
         } else {
-            // Verify current password
             $stmt = $pdo->prepare("SELECT password FROM users WHERE id = ?");
             $stmt->execute([getCurrentUserId()]);
             $user_data = $stmt->fetch();
@@ -46,18 +42,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (empty($errors)) {
         try {
             if (!empty($new_password)) {
-                // Update with new password
                 $stmt = $pdo->prepare("UPDATE users SET display_name = ?, bio = ?, password = ? WHERE id = ?");
                 $stmt->execute([$display_name, $bio, hashPassword($new_password), getCurrentUserId()]);
                 $success = 'Profile and password updated successfully!';
             } else {
-                // Update without password change
                 $stmt = $pdo->prepare("UPDATE users SET display_name = ?, bio = ? WHERE id = ?");
                 $stmt->execute([$display_name, $bio, getCurrentUserId()]);
                 $success = 'Profile updated successfully!';
             }
 
-            // Refresh user data
             $user = getCurrentUser();
         } catch (PDOException $e) {
             $errors[] = 'Failed to update profile. Please try again.';
@@ -65,7 +58,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-// Get user's posts
 $stmt = $pdo->prepare("SELECT * FROM posts WHERE user_id = ? ORDER BY created_at DESC LIMIT 10");
 $stmt->execute([getCurrentUserId()]);
 $user_posts = $stmt->fetchAll();
@@ -101,16 +93,16 @@ include '../includes/header.php';
                             <div class="col-md-6">
                                 <div class="mb-3">
                                     <label for="username" class="form-label">Username</label>
-                                    <input type="text" class="form-control" id="username" 
-                                           value="<?php echo htmlspecialchars($user['username']); ?>" disabled>
+                                    <input type="text" class="form-control" id="username"
+                                        value="<?php echo htmlspecialchars($user['username']); ?>" disabled>
                                     <div class="form-text">Username cannot be changed</div>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="mb-3">
                                     <label for="email" class="form-label">Email</label>
-                                    <input type="email" class="form-control" id="email" 
-                                           value="<?php echo htmlspecialchars($user['email']); ?>" disabled>
+                                    <input type="email" class="form-control" id="email"
+                                        value="<?php echo htmlspecialchars($user['email']); ?>" disabled>
                                     <div class="form-text">Email cannot be changed</div>
                                 </div>
                             </div>
@@ -118,8 +110,8 @@ include '../includes/header.php';
 
                         <div class="mb-3">
                             <label for="display_name" class="form-label">Display Name</label>
-                            <input type="text" class="form-control" id="display_name" name="display_name" 
-                                   value="<?php echo htmlspecialchars($_POST['display_name'] ?? $user['display_name'] ?? $user['username']); ?>" required>
+                            <input type="text" class="form-control" id="display_name" name="display_name"
+                                value="<?php echo htmlspecialchars($_POST['display_name'] ?? $user['display_name'] ?? $user['username']); ?>" required>
                         </div>
 
                         <div class="mb-3">
