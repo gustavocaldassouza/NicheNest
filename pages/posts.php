@@ -33,28 +33,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_post'])) {
     }
 }
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_reply'])) {
-    $post_id = (int)$_POST['post_id'];
-    $content = sanitizeInput($_POST['reply_content']);
-
-    if (empty($content)) {
-        $errors[] = 'Reply content is required';
-    }
-
-    if (empty($errors)) {
-        try {
-            $stmt = $pdo->prepare("INSERT INTO replies (post_id, user_id, content, created_at) VALUES (?, ?, ?, NOW())");
-            $stmt->execute([$post_id, getCurrentUserId(), $content]);
-            $reply_id = $pdo->lastInsertId();
-
-            createReplyNotification($post_id, $reply_id, getCurrentUserId());
-
-            $success = 'Reply added successfully!';
-        } catch (PDOException $e) {
-            $errors[] = 'Failed to add reply. Please try again.';
-        }
-    }
-}
 
 $stmt = $pdo->prepare("
     SELECT p.*, u.username, u.display_name 
@@ -154,7 +132,7 @@ include '../includes/header.php';
                             <button class="btn btn-sm btn-outline-primary reply-toggle"
                                 data-post-id="<?php echo $post['id']; ?>"
                                 style="transition: all 0.3s ease; border-radius: 20px;">
-                                <i class="bi bi-reply me-1"></i> Reply
+                                <i class="bi bi-reply me-1"></i> Reply<?php echo $post['replies_count'] > 0 ? ' (' . $post['replies_count'] . ')' : ''; ?>
                             </button>
 
                             <form method="POST" class="reply-form mt-3 d-none" id="reply-form-<?php echo $post['id']; ?>">
@@ -179,10 +157,10 @@ include '../includes/header.php';
                             ?>
 
                             <?php if (!empty($replies)): ?>
-                                <div class="mt-3">
+                                <div class="mt-3 replies-container">
                                     <h6>Replies:</h6>
                                     <?php foreach ($replies as $reply): ?>
-                                        <div class="border-start border-3 border-light ps-3 mb-2">
+                                        <div class="border-start border-3 border-light ps-3 mb-2 reply-item">
                                             <small class="text-muted">
                                                 <strong><?php echo htmlspecialchars($reply['display_name'] ?? $reply['username']); ?></strong>
                                                 <?php echo timeAgo($reply['created_at']); ?>

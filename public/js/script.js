@@ -85,6 +85,72 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
+    // Handle reply form submission
+    const replyForms = document.querySelectorAll('.reply-form');
+    replyForms.forEach(form => {
+        form.addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            const postId = this.querySelector('input[name="post_id"]').value;
+            const content = this.querySelector('textarea[name="reply_content"]').value.trim();
+
+            if (!content) {
+                showAlert('Reply content is required', 'danger');
+                return;
+            }
+
+            const submitBtn = this.querySelector('button[type="submit"]');
+            const originalText = submitBtn.innerHTML;
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="bi bi-hourglass-split me-1"></i>Submitting...';
+
+            const formData = new FormData();
+            formData.append('post_id', postId);
+            formData.append('reply_content', content);
+
+            fetch('/ajax/submit_reply.php', {
+                method: 'POST',
+                body: formData
+            })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.text().then(text => {
+                        if (!text.trim()) {
+                            throw new Error('Empty response from server');
+                        }
+                        try {
+                            return JSON.parse(text);
+                        } catch (e) {
+                            console.error('Invalid JSON response:', text);
+                            throw new Error('Invalid JSON response from server');
+                        }
+                    });
+                })
+                .then(data => {
+                    if (data.success) {
+                        addReplyToPost(postId, data.reply);
+                        updateReplyCount(postId, data.replies_count);
+                        this.querySelector('textarea').value = '';
+                        this.classList.add('d-none');
+
+                        showAlert(data.message, 'success');
+                    } else {
+                        showAlert(data.message, 'danger');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    showAlert('An error occurred. Please try again.', 'danger');
+                })
+                .finally(() => {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = originalText;
+                });
+        });
+    });
+
     const forms = document.querySelectorAll('form');
     forms.forEach(form => {
         form.addEventListener('submit', function (e) {
@@ -336,4 +402,64 @@ function markNotificationAsRead(notificationId) {
 
 function markAllNotificationsAsRead() {
     loadNotifications();
+}
+
+function addReplyToPost(postId, reply) {
+    // Find the replies container for this post using the reply button specifically
+    const replyButton = document.querySelector(`.reply-toggle[data-post-id="${postId}"]`);
+    if (!replyButton) {
+        console.error('Reply button not found for post ID:', postId);
+        return;
+    }
+    const postCard = replyButton.closest('.card');
+    if (!postCard) {
+        console.error('Post card not found for post ID:', postId);
+        return;
+    }
+
+    let repliesContainer = postCard.querySelector('.replies-container');
+
+    // Create replies container if it doesn't exist
+    if (!repliesContainer) {
+        repliesContainer = document.createElement('div');
+        repliesContainer.className = 'mt-3 replies-container';
+        repliesContainer.innerHTML = '<h6>Replies:</h6>';
+
+        // Insert after the reply form
+        const replyForm = postCard.querySelector('.reply-form');
+        if (replyForm) {
+            replyForm.parentNode.insertBefore(repliesContainer, replyForm.nextSibling);
+        }
+    }
+
+    // Create reply element
+    const replyElement = document.createElement('div');
+    replyElement.className = 'border-start border-3 border-light ps-3 mb-2 reply-item';
+    replyElement.innerHTML = `
+        <small class="text-muted">
+            <strong>${reply.author}</strong>
+            ${reply.time_ago}
+        </small>
+        <p class="mb-0">${reply.content.replace(/\n/g, '<br>')}</p>
+    `;
+
+    // Add to replies container
+    repliesContainer.appendChild(replyElement);
+
+    // Add fade-in animation
+    replyElement.classList.add('fade-in');
+}
+
+function updateReplyCount(postId, count) {
+    const replyBtn = document.querySelector(`.reply-toggle[data-post-id="${postId}"]`);
+    if (replyBtn) {
+        // Update button text to show count if there are replies
+        if (count > 0) {
+            replyBtn.innerHTML = `<i class="bi bi-reply me-1"></i> Reply (${count})`;
+        } else {
+            replyBtn.innerHTML = `<i class="bi bi-reply me-1"></i> Reply`;
+        }
+    } else {
+        console.error('Reply button not found for updating count, post ID:', postId);
+    }
 }
