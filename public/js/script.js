@@ -1,4 +1,8 @@
 document.addEventListener('DOMContentLoaded', function () {
+    // Initialize accessibility features
+    initializeAccessibility();
+    
+    // Initialize existing features
     initializeNotifications();
 
     const likeButtons = document.querySelectorAll('.like-btn');
@@ -463,3 +467,202 @@ function updateReplyCount(postId, count) {
         console.error('Reply button not found for updating count, post ID:', postId);
     }
 }
+
+/* ==============================================
+   ACCESSIBILITY FUNCTIONS
+   ============================================== */
+
+function initializeAccessibility() {
+    // Add keyboard navigation enhancements
+    setupKeyboardNavigation();
+    
+    // Setup ARIA live regions for dynamic content
+    setupAriaLiveRegions();
+    
+    // Improve form accessibility
+    enhanceFormAccessibility();
+    
+    // Setup focus management
+    setupFocusManagement();
+    
+    console.log('Accessibility features initialized');
+}
+
+function setupKeyboardNavigation() {
+    // Handle escape key for dropdowns and modals
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            // Close any open dropdowns
+            const openDropdowns = document.querySelectorAll('.dropdown-menu.show');
+            openDropdowns.forEach(dropdown => {
+                const toggle = dropdown.previousElementSibling;
+                if (toggle && toggle.hasAttribute('data-bs-toggle')) {
+                    bootstrap.Dropdown.getInstance(toggle)?.hide();
+                }
+            });
+        }
+    });
+
+    // Improve tab navigation order
+    const interactiveElements = document.querySelectorAll('a, button, input, textarea, select, [tabindex]');
+    interactiveElements.forEach((element, index) => {
+        if (!element.hasAttribute('tabindex') && !element.disabled) {
+            element.setAttribute('tabindex', '0');
+        }
+    });
+
+    // Skip to main content functionality
+    const skipLink = document.querySelector('.visually-hidden-focusable');
+    if (skipLink) {
+        skipLink.addEventListener('click', function(e) {
+            e.preventDefault();
+            const mainContent = document.getElementById('main-content');
+            if (mainContent) {
+                mainContent.focus();
+                mainContent.scrollIntoView({ behavior: 'smooth' });
+            }
+        });
+    }
+}
+
+function setupAriaLiveRegions() {
+    // Create or enhance existing live regions
+    let alertContainer = document.getElementById('alert-container');
+    if (!alertContainer) {
+        alertContainer = document.createElement('div');
+        alertContainer.id = 'alert-container';
+        alertContainer.setAttribute('aria-live', 'polite');
+        alertContainer.setAttribute('aria-atomic', 'true');
+        alertContainer.className = 'visually-hidden';
+        document.body.appendChild(alertContainer);
+    }
+
+    // Override the existing showAlert function to use ARIA live regions
+    window.showAlert = function(message, type = 'info') {
+        // Visual alert (existing functionality)
+        const alertHtml = `
+            <div class="alert alert-${type} alert-dismissible fade show" role="alert">
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close alert"></button>
+            </div>
+        `;
+        
+        const container = document.querySelector('.container');
+        if (container) {
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = alertHtml;
+            container.insertBefore(tempDiv.firstElementChild, container.firstElementChild);
+        }
+
+        // Announce to screen readers
+        alertContainer.textContent = message;
+        
+        // Clear the announcement after a delay
+        setTimeout(() => {
+            alertContainer.textContent = '';
+        }, 5000);
+    };
+}
+
+function enhanceFormAccessibility() {
+    // Enhance form accessibility without visual indicators
+    const requiredFields = document.querySelectorAll('input[required], textarea[required], select[required]');
+    requiredFields.forEach(field => {
+        // Add ARIA describedby if help text exists
+        const helpText = field.nextElementSibling;
+        if (helpText && helpText.classList.contains('form-text')) {
+            const helpId = field.id + '-help';
+            helpText.id = helpId;
+            field.setAttribute('aria-describedby', helpId);
+        }
+    });
+
+    // Enhance form validation messages
+    const forms = document.querySelectorAll('form');
+    forms.forEach(form => {
+        form.addEventListener('submit', function(e) {
+            const invalidFields = form.querySelectorAll(':invalid');
+            if (invalidFields.length > 0) {
+                e.preventDefault();
+                
+                // Focus on first invalid field
+                invalidFields[0].focus();
+                
+                // Announce validation error
+                const message = `Form has ${invalidFields.length} error${invalidFields.length > 1 ? 's' : ''}. Please review and correct.`;
+                announceToScreenReader(message);
+            }
+        });
+    });
+}
+
+function setupFocusManagement() {
+    // Ensure focus is visible when navigating with keyboard
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Tab') {
+            document.body.classList.add('keyboard-navigation');
+        }
+    });
+
+    document.addEventListener('mousedown', function() {
+        document.body.classList.remove('keyboard-navigation');
+    });
+
+    // Manage focus for dynamic content
+    const observer = new MutationObserver(function(mutations) {
+        mutations.forEach(function(mutation) {
+            if (mutation.type === 'childList') {
+                mutation.addedNodes.forEach(function(node) {
+                    if (node.nodeType === 1) { // Element node
+                        const focusableElements = node.querySelectorAll('a, button, input, textarea, select, [tabindex]');
+                        focusableElements.forEach(element => {
+                            if (!element.hasAttribute('tabindex') && !element.disabled) {
+                                element.setAttribute('tabindex', '0');
+                            }
+                        });
+                    }
+                });
+            }
+        });
+    });
+
+    observer.observe(document.body, {
+        childList: true,
+        subtree: true
+    });
+}
+
+function announceToScreenReader(message) {
+    const alertContainer = document.getElementById('alert-container');
+    if (alertContainer) {
+        alertContainer.textContent = message;
+        setTimeout(() => {
+            alertContainer.textContent = '';
+        }, 3000);
+    }
+}
+
+/* ==============================================
+   ENHANCED BUTTON INTERACTIONS
+   ============================================== */
+
+// Override like button functionality to include accessibility improvements
+function enhanceLikeButton(button) {
+    const postId = button.getAttribute('data-post-id');
+    const isLiked = button.getAttribute('data-liked') === 'true';
+    
+    // Add proper ARIA labels
+    button.setAttribute('aria-label', `${isLiked ? 'Unlike' : 'Like'} this post`);
+    button.setAttribute('aria-pressed', isLiked.toString());
+    
+    // Add keyboard support
+    button.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            button.click();
+        }
+    });
+}
+
+// Apply enhancements to all like buttons
+document.querySelectorAll('.like-btn').forEach(enhanceLikeButton);

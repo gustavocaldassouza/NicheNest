@@ -47,7 +47,8 @@ $page_title = "Community Posts - NicheNest";
 include '../includes/header.php';
 ?>
 
-<div class="container mt-4">
+<main id="main-content" role="main">
+    <div class="container mt-4">
     <div class="card mb-4">
         <div class="card-header">
             <h5><i class="bi bi-plus-circle"></i> Create New Post</h5>
@@ -192,6 +193,8 @@ include '../includes/header.php';
             </div>
         </div>
     </div>
-</div>
+</main>
+
+<?php include '../includes/footer.php'; ?>
 
 <?php include '../includes/footer.php'; ?>

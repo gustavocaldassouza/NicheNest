@@ -64,10 +64,11 @@ $page_title = "Register - NicheNest";
 include '../includes/header.php';
 ?>
 
-<div class="container mt-5">
-    <div class="row justify-content-center">
-        <div class="col-md-6">
-            <div class="card">
+<main id="main-content" role="main">
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="card">
                 <div class="card-header">
                     <h3 class="text-center">Join NicheNest</h3>
                 </div>
@@ -118,6 +119,6 @@ include '../includes/header.php';
             </div>
         </div>
     </div>
-</div>
+</main>
 
 <?php include '../includes/footer.php'; ?>

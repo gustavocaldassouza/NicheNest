@@ -7,47 +7,86 @@ require_once 'includes/auth.php';
 $page_title = "NicheNest - Micro Community Platform";
 include 'includes/header.php';
 ?>
-<div class="hero-section bg-primary text-white text-center py-5 mb-4">
-    <div class="container">
-        <h1 class="display-4">Welcome to NicheNest</h1>
-        <p class="lead">Your micro-community platform for focused groups</p>
-        <?php if (!isLoggedIn()): ?>
-            <a href="/pages/register.php" class="btn btn-light btn-lg me-2">Join Community</a>
-            <a href="/pages/login.php" class="btn btn-outline-light btn-lg">Login</a>
-        <?php else: ?>
-            <a href="/pages/posts.php" class="btn btn-light btn-lg">View Posts</a>
-        <?php endif; ?>
-    </div>
-</div>
 
-<div class="container">
-    <div class="row">
-        <div class="col-lg-8">
-            <h2>Recent Activity</h2>
-            <?php if (isLoggedIn()): ?>
-                <div class="card mb-4">
-                    <div class="card-body">
-                        <h5>Quick Post</h5>
-                        <form action="/pages/posts.php" method="POST">
-                            <div class="mb-3">
-                                <textarea name="content" class="form-control" rows="3" placeholder="What's on your mind?"></textarea>
-                            </div>
-                            <button type="submit" class="btn btn-primary">Post</button>
-                        </form>
+<!-- Main content area with proper semantic structure -->
+<main id="main-content" role="main">
+    <!-- Hero section with semantic header -->
+    <header class="hero-section bg-primary text-white text-center py-5 mb-4" role="banner">
+        <div class="container">
+            <h1 class="display-4">Welcome to NicheNest</h1>
+            <p class="lead">Your micro-community platform for focused groups</p>
+            <?php if (!isLoggedIn()): ?>
+                <div class="hero-actions" role="group" aria-label="Get started actions">
+                    <a href="/pages/register.php" 
+                       class="btn btn-light btn-lg me-2"
+                       aria-describedby="join-description">Join Community</a>
+                    <a href="/pages/login.php" 
+                       class="btn btn-outline-light btn-lg"
+                       aria-describedby="login-description">Login</a>
+                    <div class="visually-hidden">
+                        <span id="join-description">Create a new account to start participating in the community</span>
+                        <span id="login-description">Sign in to your existing account</span>
                     </div>
                 </div>
-            <?php endif; ?>
-
-            <div class="card">
-                <div class="card-body">
-                    <h5 class="card-title">Welcome to Your Community</h5>
-                    <p class="card-text">Connect with like-minded individuals, share ideas, and build meaningful relationships in focused interest groups.</p>
-                    <a href="/pages/posts.php" class="btn btn-primary">Explore Posts</a>
+            <?php else: ?>
+                <div class="hero-actions">
+                    <a href="/pages/posts.php" 
+                       class="btn btn-light btn-lg"
+                       aria-label="Go to posts page to view community content">View Posts</a>
                 </div>
-            </div>
+            <?php endif; ?>
         </div>
+    </header>
 
-        <div class="col-lg-4">
+    <div class="container">
+        <div class="row">
+            <!-- Main content area -->
+            <div class="col-lg-8">
+                <section aria-labelledby="recent-activity-heading">
+                    <h2 id="recent-activity-heading">Recent Activity</h2>
+                    
+                    <?php if (isLoggedIn()): ?>
+                        <article class="card mb-4" role="complementary" aria-labelledby="quick-post-heading">
+                            <div class="card-body">
+                                <h3 id="quick-post-heading" class="h5">Quick Post</h3>
+                                <form action="/pages/posts.php" method="POST" aria-label="Create a new post">
+                                    <div class="mb-3">
+                                        <label for="post-content" class="visually-hidden">Post content</label>
+                                        <textarea name="content" 
+                                                  id="post-content"
+                                                  class="form-control" 
+                                                  rows="3" 
+                                                  placeholder="What's on your mind?"
+                                                  aria-describedby="post-help"></textarea>
+                                        <div id="post-help" class="form-text visually-hidden">
+                                            Share your thoughts with the community
+                                        </div>
+                                    </div>
+                                    <button type="submit" 
+                                            class="btn btn-primary"
+                                            aria-label="Submit your post to the community">Post</button>
+                                </form>
+                            </div>
+                        </article>
+                    <?php endif; ?>
+
+                    <article class="card" role="complementary">
+                        <div class="card-body">
+                            <h3 class="card-title h5">Welcome to Your Community</h3>
+                            <p class="card-text">Connect with like-minded individuals, share ideas, and build meaningful relationships in focused interest groups.</p>
+                            <a href="/pages/posts.php" 
+                               class="btn btn-primary"
+                               aria-label="Browse all community posts and discussions">Explore Posts</a>
+                        </div>
+                    </article>
+                </section>
+            </div>
+
+            <!-- Sidebar -->
+            <aside class="col-lg-4" role="complementary" aria-labelledby="sidebar-heading">
+                <div class="visually-hidden">
+                    <h2 id="sidebar-heading">Community Information</h2>
+                </div>
             <div class="card">
                 <div class="card-header">
                     <h5>Community Stats</h5>
@@ -60,6 +99,6 @@ include 'includes/header.php';
             </div>
         </div>
     </div>
-</div>
+</main>
 
 <?php include 'includes/footer.php'; ?>
