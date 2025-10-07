@@ -2,7 +2,7 @@
 define('DB_HOST', '127.0.0.1');
 define('DB_NAME', 'nichenest');
 define('DB_USER', 'root');
-define('DB_PASS', '');
+define('DB_PASS', 'root');
 
 define('APP_NAME', 'NicheNest');
 define('APP_URL', 'http://localhost/nichenest/public');

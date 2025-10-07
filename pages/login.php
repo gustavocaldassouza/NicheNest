@@ -63,28 +63,28 @@ include '../includes/header.php';
                             </div>
                         <?php endif; ?>
 
-                        <form method="POST" 
-                              action="" 
-                              aria-labelledby="login-heading"
-                              novalidate>
+                        <form method="POST"
+                            action=""
+                            aria-labelledby="login-heading"
+                            novalidate>
                             <div class="mb-3">
                                 <label for="email" class="form-label">
                                     Email Address
                                 </label>
-                                <input type="email" 
-                                       class="form-control <?php echo !empty($errors) && in_array('Email is required', $errors) ? 'is-invalid' : ''; ?>" 
-                                       id="email" 
-                                       name="email"
-                                       value="<?php echo htmlspecialchars($_POST['email'] ?? ''); ?>" 
-                                       required
-                                       aria-describedby="email-help <?php echo !empty($errors) ? 'email-error' : ''; ?>"
-                                       autocomplete="email">
+                                <input type="email"
+                                    class="form-control <?php echo !empty($errors) && in_array('Email is required', $errors) ? 'is-invalid' : ''; ?>"
+                                    id="email"
+                                    name="email"
+                                    value="<?php echo htmlspecialchars($_POST['email'] ?? ''); ?>"
+                                    required
+                                    aria-describedby="email-help <?php echo !empty($errors) ? 'email-error' : ''; ?>"
+                                    autocomplete="email">
                                 <div id="email-help" class="form-text">
                                     Enter the email address associated with your account
                                 </div>
                                 <?php if (!empty($errors) && (in_array('Email is required', $errors) || in_array('Invalid email format', $errors))): ?>
                                     <div id="email-error" class="invalid-feedback" role="alert">
-                                        <?php 
+                                        <?php
                                         if (in_array('Email is required', $errors)) echo 'Email is required';
                                         elseif (in_array('Invalid email format', $errors)) echo 'Please enter a valid email format';
                                         ?>
@@ -96,13 +96,13 @@ include '../includes/header.php';
                                 <label for="password" class="form-label">
                                     Password
                                 </label>
-                                <input type="password" 
-                                       class="form-control <?php echo !empty($errors) && in_array('Password is required', $errors) ? 'is-invalid' : ''; ?>" 
-                                       id="password" 
-                                       name="password" 
-                                       required
-                                       aria-describedby="password-help <?php echo !empty($errors) ? 'password-error' : ''; ?>"
-                                       autocomplete="current-password">
+                                <input type="password"
+                                    class="form-control <?php echo !empty($errors) && in_array('Password is required', $errors) ? 'is-invalid' : ''; ?>"
+                                    id="password"
+                                    name="password"
+                                    required
+                                    aria-describedby="password-help <?php echo !empty($errors) ? 'password-error' : ''; ?>"
+                                    autocomplete="current-password">
                                 <div id="password-help" class="form-text">
                                     Enter your account password
                                 </div>
@@ -114,9 +114,9 @@ include '../includes/header.php';
                             </div>
 
                             <div class="d-grid">
-                                <button type="submit" 
-                                        class="btn btn-primary"
-                                        aria-describedby="login-button-help">
+                                <button type="submit"
+                                    class="btn btn-primary"
+                                    aria-describedby="login-button-help">
                                     Login
                                 </button>
                                 <div id="login-button-help" class="visually-hidden">
@@ -126,15 +126,16 @@ include '../includes/header.php';
                         </form>
 
                         <div class="text-center mt-3">
-                            <p>Don't have an account? 
-                               <a href="register.php" 
-                                  aria-label="Go to registration page to create a new account">Register here</a>
+                            <p>Don't have an account?
+                                <a href="register.php"
+                                    aria-label="Go to registration page to create a new account">Register here</a>
                             </p>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
+    </div>
     </div>
 </main>
 
