@@ -25,7 +25,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $new_status = $current_status === 'active' ? 'suspended' : 'active';
 
         // Validate user exists
-        $stmt = $pdo->prepare("SELECT id FROM users WHERE id = ?");
+        $stmt = $pdo->prepare("SELECT 1 FROM users WHERE id = ? LIMIT 1");
         $stmt->execute([$user_id]);
         if (!$stmt->fetch()) {
             $message = "Error: User not found.";
@@ -45,7 +45,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $post_id = (int)$_POST['post_id'];
 
         // Validate post exists
-        $stmt = $pdo->prepare("SELECT id FROM posts WHERE id = ?");
+        $stmt = $pdo->prepare("SELECT 1 FROM posts WHERE id = ? LIMIT 1");
         $stmt->execute([$post_id]);
         if (!$stmt->fetch()) {
             $message = "Error: Post not found.";
@@ -69,7 +69,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $new_flag = $current_flag === 1 ? 0 : 1;
 
         // Validate post exists
-        $stmt = $pdo->prepare("SELECT id FROM posts WHERE id = ?");
+        $stmt = $pdo->prepare("SELECT 1 FROM posts WHERE id = ? LIMIT 1");
         $stmt->execute([$post_id]);
         if (!$stmt->fetch()) {
             $message = "Error: Post not found.";

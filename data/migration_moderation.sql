@@ -2,14 +2,13 @@
 -- Run this if you already have an existing database
 
 -- Add flagged column to posts table (check if column exists first)
--- Note: MySQL 5.7 and below don't support ADD COLUMN IF NOT EXISTS
--- This will fail gracefully if the column already exists
+-- Using dynamic SQL to handle cases where column might already exist
 SET @sql = IF(
     (SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS 
      WHERE TABLE_SCHEMA = DATABASE() 
      AND TABLE_NAME = 'posts' 
      AND COLUMN_NAME = 'flagged') = 0,
-    'ALTER TABLE posts ADD COLUMN flagged BOOLEAN DEFAULT FALSE AFTER replies_count, ADD INDEX idx_flagged (flagged)',
+    'ALTER TABLE posts ADD COLUMN flagged BOOLEAN DEFAULT FALSE, ADD INDEX idx_flagged (flagged)',
     'SELECT "Column flagged already exists" AS msg'
 );
 PREPARE stmt FROM @sql;
