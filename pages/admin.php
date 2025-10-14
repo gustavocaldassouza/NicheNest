@@ -11,8 +11,11 @@ $message = '';
 // Function to log moderation actions
 function logModerationAction($pdo, $action, $target_type, $target_id, $reason = null) {
     $moderator_id = getCurrentUserId();
+    if (!$moderator_id) {
+        return false; // Cannot log without valid moderator ID
+    }
     $stmt = $pdo->prepare("INSERT INTO moderation_logs (moderator_id, action, target_type, target_id, reason) VALUES (?, ?, ?, ?, ?)");
-    $stmt->execute([$moderator_id, $action, $target_type, $target_id, $reason]);
+    return $stmt->execute([$moderator_id, $action, $target_type, $target_id, $reason]);
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -21,29 +24,43 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $current_status = $_POST['current_status'];
         $new_status = $current_status === 'active' ? 'suspended' : 'active';
 
-        $stmt = $pdo->prepare("UPDATE users SET status = ? WHERE id = ?");
-        $stmt->execute([$new_status, $user_id]);
-        
-        // Log the moderation action
-        $action = $new_status === 'suspended' ? 'suspend_user' : 'activate_user';
-        logModerationAction($pdo, $action, 'user', $user_id);
-        
-        $message = "User status updated successfully.";
+        // Validate user exists
+        $stmt = $pdo->prepare("SELECT id FROM users WHERE id = ?");
+        $stmt->execute([$user_id]);
+        if (!$stmt->fetch()) {
+            $message = "Error: User not found.";
+        } else {
+            $stmt = $pdo->prepare("UPDATE users SET status = ? WHERE id = ?");
+            $stmt->execute([$new_status, $user_id]);
+            
+            // Log the moderation action
+            $action = $new_status === 'suspended' ? 'suspend_user' : 'activate_user';
+            logModerationAction($pdo, $action, 'user', $user_id);
+            
+            $message = "User status updated successfully.";
+        }
     }
 
     if (isset($_POST['delete_post'])) {
         $post_id = (int)$_POST['post_id'];
 
-        $stmt = $pdo->prepare("DELETE FROM replies WHERE post_id = ?");
+        // Validate post exists
+        $stmt = $pdo->prepare("SELECT id FROM posts WHERE id = ?");
         $stmt->execute([$post_id]);
+        if (!$stmt->fetch()) {
+            $message = "Error: Post not found.";
+        } else {
+            $stmt = $pdo->prepare("DELETE FROM replies WHERE post_id = ?");
+            $stmt->execute([$post_id]);
 
-        $stmt = $pdo->prepare("DELETE FROM posts WHERE id = ?");
-        $stmt->execute([$post_id]);
-        
-        // Log the moderation action
-        logModerationAction($pdo, 'delete_post', 'post', $post_id);
-        
-        $message = "Post and its replies deleted successfully.";
+            $stmt = $pdo->prepare("DELETE FROM posts WHERE id = ?");
+            $stmt->execute([$post_id]);
+            
+            // Log the moderation action
+            logModerationAction($pdo, 'delete_post', 'post', $post_id);
+            
+            $message = "Post and its replies deleted successfully.";
+        }
     }
 
     if (isset($_POST['toggle_post_flag'])) {
@@ -51,14 +68,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $current_flag = (int)$_POST['current_flag'];
         $new_flag = $current_flag === 1 ? 0 : 1;
 
-        $stmt = $pdo->prepare("UPDATE posts SET flagged = ? WHERE id = ?");
-        $stmt->execute([$new_flag, $post_id]);
-        
-        // Log the moderation action
-        $action = $new_flag === 1 ? 'flag_post' : 'unflag_post';
-        logModerationAction($pdo, $action, 'post', $post_id);
-        
-        $message = $new_flag === 1 ? "Post flagged successfully." : "Post unflagged successfully.";
+        // Validate post exists
+        $stmt = $pdo->prepare("SELECT id FROM posts WHERE id = ?");
+        $stmt->execute([$post_id]);
+        if (!$stmt->fetch()) {
+            $message = "Error: Post not found.";
+        } else {
+            $stmt = $pdo->prepare("UPDATE posts SET flagged = ? WHERE id = ?");
+            $stmt->execute([$new_flag, $post_id]);
+            
+            // Log the moderation action
+            $action = $new_flag === 1 ? 'flag_post' : 'unflag_post';
+            logModerationAction($pdo, $action, 'post', $post_id);
+            
+            $message = $new_flag === 1 ? "Post flagged successfully." : "Post unflagged successfully.";
+        }
     }
 }
 
