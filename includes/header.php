@@ -46,6 +46,9 @@ require_once 'notifications.php';
                             <a class="nav-link" href="/pages/posts.php" role="menuitem">Posts</a>
                         </li>
                         <li class="nav-item" role="none">
+                            <a class="nav-link" href="/pages/groups.php" role="menuitem">Groups</a>
+                        </li>
+                        <li class="nav-item" role="none">
                             <a class="nav-link" href="/pages/profile.php" role="menuitem">Profile</a>
                         </li>
                         <?php if (isAdmin()): ?>
