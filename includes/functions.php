@@ -62,3 +62,61 @@ function timeAgo($timestamp)
 
     return date('M j, Y', strtotime($timestamp));
 }
+
+// Group-related functions
+
+function isGroupOwner($groupId, $userId)
+{
+    global $pdo;
+    $stmt = $pdo->prepare("SELECT COUNT(*) FROM group_members WHERE group_id = ? AND user_id = ? AND role = 'owner'");
+    $stmt->execute([$groupId, $userId]);
+    return $stmt->fetchColumn() > 0;
+}
+
+function isGroupMember($groupId, $userId)
+{
+    global $pdo;
+    $stmt = $pdo->prepare("SELECT COUNT(*) FROM group_members WHERE group_id = ? AND user_id = ?");
+    $stmt->execute([$groupId, $userId]);
+    return $stmt->fetchColumn() > 0;
+}
+
+function canAccessGroup($groupId, $userId)
+{
+    global $pdo;
+    $stmt = $pdo->prepare("SELECT privacy FROM `groups` WHERE id = ?");
+    $stmt->execute([$groupId]);
+    $group = $stmt->fetch();
+    
+    if (!$group) {
+        return false;
+    }
+    
+    if ($group['privacy'] === 'public') {
+        return true;
+    }
+    
+    return isGroupMember($groupId, $userId);
+}
+
+function hasPendingGroupRequest($groupId, $userId)
+{
+    global $pdo;
+    $stmt = $pdo->prepare("SELECT COUNT(*) FROM group_member_requests WHERE group_id = ? AND user_id = ? AND status = 'pending'");
+    $stmt->execute([$groupId, $userId]);
+    return $stmt->fetchColumn() > 0;
+}
+
+function getPendingMemberRequests($groupId)
+{
+    global $pdo;
+    $stmt = $pdo->prepare("
+        SELECT gmr.*, u.username, u.display_name, u.avatar 
+        FROM group_member_requests gmr
+        JOIN users u ON gmr.user_id = u.id
+        WHERE gmr.group_id = ? AND gmr.status = 'pending'
+        ORDER BY gmr.created_at DESC
+    ");
+    $stmt->execute([$groupId]);
+    return $stmt->fetchAll();
+}

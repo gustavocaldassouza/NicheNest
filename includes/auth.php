@@ -64,3 +64,27 @@ function requireAdmin()
         redirect('../public/index.php');
     }
 }
+
+/**
+ * Require group owner access
+ */
+function requireGroupOwner($groupId)
+{
+    requireLogin();
+    if (!isGroupOwner($groupId, getCurrentUserId())) {
+        setFlashMessage('Access denied. Group owner privileges required.', 'danger');
+        redirect('../pages/groups.php');
+    }
+}
+
+/**
+ * Require group member access
+ */
+function requireGroupMember($groupId)
+{
+    requireLogin();
+    if (!canAccessGroup($groupId, getCurrentUserId())) {
+        setFlashMessage('Access denied. You do not have permission to view this group.', 'danger');
+        redirect('../pages/groups.php');
+    }
+}
