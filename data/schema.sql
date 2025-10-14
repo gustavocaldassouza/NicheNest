@@ -28,11 +28,13 @@ CREATE TABLE posts (
     content TEXT NOT NULL,
     likes_count INT DEFAULT 0,
     replies_count INT DEFAULT 0,
+    flagged BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
     INDEX idx_user_id (user_id),
-    INDEX idx_created_at (created_at)
+    INDEX idx_created_at (created_at),
+    INDEX idx_flagged (flagged)
 );
 
 -- Replies table
@@ -93,6 +95,21 @@ CREATE TABLE sessions (
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
     INDEX idx_expires (expires),
     INDEX idx_user_id (user_id)
+);
+
+-- Moderation logs table
+CREATE TABLE moderation_logs (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    moderator_id INT NOT NULL,
+    action ENUM('flag_post', 'unflag_post', 'delete_post', 'suspend_user', 'activate_user') NOT NULL,
+    target_type ENUM('post', 'user') NOT NULL,
+    target_id INT NOT NULL,
+    reason TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (moderator_id) REFERENCES users(id) ON DELETE CASCADE,
+    INDEX idx_moderator_id (moderator_id),
+    INDEX idx_target (target_type, target_id),
+    INDEX idx_created_at (created_at)
 );
 
 -- Insert sample admin user (password: admin123)

@@ -10,6 +10,10 @@ A modern PHP-based community platform designed for creating focused, interest-ba
 - **Community Posts**: Create and share posts with the community
 - **User Profiles**: Customizable user profiles with bio and avatar support
 - **Admin Panel**: Comprehensive admin interface for community management
+  - **Role-Based Moderation**: Admin-only access to moderation tools
+  - **Post Management**: Flag and delete inappropriate posts
+  - **User Management**: Suspend and reactivate user accounts
+  - **Moderation Logs**: Track all moderation actions with timestamps
 - **Responsive Design**: Modern, mobile-friendly interface using Bootstrap 5
 - **Real-time Interactions**: Like, reply, and engage with community content
 - **Session Management**: Secure session handling with proper logout functionality
@@ -164,6 +168,22 @@ define('APP_URL', 'http://localhost:8000');
 define('UPLOAD_PATH', 'uploads/');
 ```
 
+### Database Migration
+
+If you're upgrading from an older version, run the migration script to add moderation features:
+
+```bash
+# Using Docker
+docker exec -i nichenest-mysql mysql -uroot -proot nichenest < data/migration_moderation.sql
+
+# Using local MySQL
+mysql -u root -p nichenest < data/migration_moderation.sql
+```
+
+This migration adds:
+- `flagged` column to posts table for marking inappropriate content
+- `moderation_logs` table for tracking all moderation actions
+
 ## 🔒 Security Features
 
 - **Password Hashing**: Uses PHP's `password_hash()` with bcrypt
@@ -188,6 +208,41 @@ define('UPLOAD_PATH', 'uploads/');
 
 - Header and footer templates in `includes/` directory
 - Consistent navigation and layout across all pages
+
+## 👮 Admin & Moderation
+
+### Admin Panel Features
+
+The admin panel (`/pages/admin.php`) provides comprehensive moderation tools:
+
+#### Dashboard Statistics
+- Total users, posts, and replies
+- Number of flagged posts requiring review
+
+#### User Management
+- View all registered users with their roles and status
+- Suspend or reactivate user accounts
+- Prevent suspended users from posting or accessing certain features
+
+#### Post Management
+- View all posts with flagged status indicators
+- **Flag Posts**: Mark inappropriate or suspicious content for review
+- **Unflag Posts**: Remove flags from reviewed content
+- **Delete Posts**: Permanently remove posts and their replies
+- Visual indicators: Flagged posts appear with warning badges and highlighted rows
+
+#### Moderation Logs
+- Complete audit trail of all moderation actions
+- Tracks: moderator identity, action type, target, and timestamp
+- Actions logged: flag/unflag posts, delete posts, suspend/activate users
+
+### Access Control
+
+Only users with `role = 'admin'` in the database can access the admin panel. The default admin credentials are:
+- **Username**: admin
+- **Password**: admin123
+
+**Important**: Change the default admin password immediately after first login!
 
 ## 📄 License
 
