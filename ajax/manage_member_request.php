@@ -28,7 +28,7 @@ requireGroupOwner($groupId);
 $stmt = $pdo->prepare("
     SELECT gmr.*, g.name as group_name, u.username, u.display_name
     FROM group_member_requests gmr
-    JOIN groups g ON gmr.group_id = g.id
+    JOIN `groups` g ON gmr.group_id = g.id
     JOIN users u ON gmr.user_id = u.id
     WHERE gmr.id = ? AND gmr.group_id = ? AND gmr.status = 'pending'
 ");

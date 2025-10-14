@@ -9,6 +9,7 @@ requireLogin();
 $currentUserId = getCurrentUserId();
 
 // Get all groups that the user can see (public groups + private groups they're a member of)
+// Note: user_id parameter is used twice - once for checking membership role and once for EXISTS clause
 $stmt = $pdo->prepare("
     SELECT g.*, u.username as owner_username, u.display_name as owner_name,
            (SELECT COUNT(*) FROM group_members WHERE group_id = g.id) as member_count,
