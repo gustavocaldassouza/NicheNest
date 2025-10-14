@@ -41,12 +41,15 @@ require_once 'notifications.php';
                     <li class="nav-item" role="none">
                         <a class="nav-link" href="/" role="menuitem">Home</a>
                     </li>
+                    <li class="nav-item" role="none">
+                        <a class="nav-link" href="/pages/discover_groups.php" role="menuitem">Discover Groups</a>
+                    </li>
                     <?php if (isLoggedIn()): ?>
                         <li class="nav-item" role="none">
                             <a class="nav-link" href="/pages/posts.php" role="menuitem">Posts</a>
                         </li>
                         <li class="nav-item" role="none">
-                            <a class="nav-link" href="/pages/groups.php" role="menuitem">Groups</a>
+                            <a class="nav-link" href="/pages/groups.php" role="menuitem">My Groups</a>
                         </li>
                         <li class="nav-item" role="none">
                             <a class="nav-link" href="/pages/profile.php" role="menuitem">Profile</a>

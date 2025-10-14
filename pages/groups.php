@@ -9,18 +9,19 @@ requireLogin();
 $currentUserId = getCurrentUserId();
 
 // Get all groups that the user can see (public groups + private groups they're a member of)
-// Note: user_id parameter is used twice - once for checking membership role and once for EXISTS clause
+// Note: user_id parameter is used three times - for checking membership role, EXISTS clause, and pending requests
 $stmt = $pdo->prepare("
     SELECT g.*, u.username as owner_username, u.display_name as owner_name,
            (SELECT COUNT(*) FROM group_members WHERE group_id = g.id) as member_count,
-           (SELECT role FROM group_members WHERE group_id = g.id AND user_id = ?) as user_role
+           (SELECT role FROM group_members WHERE group_id = g.id AND user_id = ?) as user_role,
+           (SELECT COUNT(*) FROM group_member_requests WHERE group_id = g.id AND user_id = ? AND status = 'pending') as has_pending_request
     FROM `groups` g
     JOIN users u ON g.owner_id = u.id
     WHERE g.privacy = 'public' 
        OR EXISTS (SELECT 1 FROM group_members WHERE group_id = g.id AND user_id = ?)
     ORDER BY g.created_at DESC
 ");
-$stmt->execute([$currentUserId, $currentUserId]);
+$stmt->execute([$currentUserId, $currentUserId, $currentUserId]);
 $groups = $stmt->fetchAll();
 
 $page_title = "Groups - NicheNest";
@@ -75,6 +76,12 @@ include '../includes/header.php';
                                         <?php echo $group['user_role'] === 'owner' ? 'Owner' : 'Member'; ?>
                                     </span>
                                 </div>
+                            <?php elseif ($group['has_pending_request'] > 0): ?>
+                                <div class="mt-2">
+                                    <span class="badge bg-warning text-dark">
+                                        <i class="bi bi-hourglass-split"></i> Request Pending
+                                    </span>
+                                </div>
                             <?php endif; ?>
                         </div>
                         <div class="card-footer bg-transparent">
@@ -88,6 +95,20 @@ include '../includes/header.php';
                                 <a href="group_members.php?id=<?php echo $group['id']; ?>" class="btn btn-sm btn-outline-info">
                                     <i class="bi bi-people"></i> Members
                                 </a>
+                            <?php elseif (!$group['user_role'] && $group['privacy'] === 'public'): ?>
+                                <form method="POST" action="/ajax/join_group.php" class="d-inline">
+                                    <input type="hidden" name="group_id" value="<?php echo $group['id']; ?>">
+                                    <button type="submit" class="btn btn-sm btn-success">
+                                        <i class="bi bi-person-plus"></i> Join Group
+                                    </button>
+                                </form>
+                            <?php elseif (!$group['user_role'] && $group['privacy'] === 'private' && $group['has_pending_request'] == 0): ?>
+                                <form method="POST" action="/ajax/join_group.php" class="d-inline">
+                                    <input type="hidden" name="group_id" value="<?php echo $group['id']; ?>">
+                                    <button type="submit" class="btn btn-sm btn-warning">
+                                        <i class="bi bi-person-plus"></i> Request to Join
+                                    </button>
+                                </form>
                             <?php endif; ?>
                         </div>
                     </div>

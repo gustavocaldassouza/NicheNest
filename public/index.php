@@ -92,6 +92,11 @@ include 'includes/header.php';
                         <p><strong>Active Members:</strong> Coming Soon</p>
                         <p><strong>Total Posts:</strong> Coming Soon</p>
                         <p><strong>Groups:</strong> Coming Soon</p>
+                        <div class="mt-3">
+                            <a href="/pages/discover_groups.php" class="btn btn-primary btn-sm w-100">
+                                <i class="bi bi-compass"></i> Discover Groups
+                            </a>
+                        </div>
                     </div>
                 </div>
         </div>

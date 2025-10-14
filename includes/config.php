@@ -1,8 +1,8 @@
 <?php
 define('DB_HOST', '127.0.0.1');
 define('DB_NAME', 'nichenest');
-define('DB_USER', 'root');
-define('DB_PASS', 'root');
+define('DB_USER', 'nichenest');
+define('DB_PASS', 'nichenest123');
 
 define('APP_NAME', 'NicheNest');
 define('APP_URL', 'http://localhost/nichenest/public');
