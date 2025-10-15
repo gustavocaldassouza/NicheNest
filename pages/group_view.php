@@ -14,6 +14,54 @@ if (!$groupId) {
 }
 
 $currentUserId = getCurrentUserId();
+$errors = [];
+$success = '';
+
+// Handle post creation
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_post'])) {
+    $title = sanitizeInput($_POST['title']);
+    $content = sanitizeInput($_POST['content']);
+
+    if (empty($title)) {
+        $errors[] = 'Post title is required';
+    }
+
+    if (empty($content)) {
+        $errors[] = 'Post content is required';
+    }
+
+    if (empty($errors)) {
+        try {
+            $stmt = $pdo->prepare("INSERT INTO posts (user_id, group_id, title, content, created_at) VALUES (?, ?, ?, ?, NOW())");
+            $stmt->execute([$currentUserId, $groupId, $title, $content]);
+            $success = 'Post created successfully!';
+            // Clear form data
+            $_POST = [];
+        } catch (PDOException $e) {
+            $errors[] = 'Failed to create post. Please try again.';
+        }
+    }
+}
+
+// Handle reply creation
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_reply'])) {
+    $post_id = (int)$_POST['post_id'];
+    $content = sanitizeInput($_POST['reply_content']);
+
+    if (empty($content)) {
+        $errors[] = 'Reply content is required';
+    }
+
+    if (empty($errors)) {
+        try {
+            $stmt = $pdo->prepare("INSERT INTO replies (post_id, user_id, content, created_at) VALUES (?, ?, ?, NOW())");
+            $stmt->execute([$post_id, $currentUserId, $content]);
+            $success = 'Reply added successfully!';
+        } catch (PDOException $e) {
+            $errors[] = 'Failed to add reply. Please try again.';
+        }
+    }
+}
 
 // Get group details
 $stmt = $pdo->prepare("
@@ -89,6 +137,30 @@ $stmt = $pdo->prepare("
 $stmt->execute([$groupId]);
 $members = $stmt->fetchAll();
 
+// Get group posts
+$stmt = $pdo->prepare("
+    SELECT p.*, u.username, u.display_name 
+    FROM posts p 
+    JOIN users u ON p.user_id = u.id 
+    WHERE p.group_id = ?
+    ORDER BY p.created_at DESC
+");
+$stmt->execute([$groupId]);
+$posts = $stmt->fetchAll();
+
+// Get replies for each post
+foreach ($posts as &$post) {
+    $stmt = $pdo->prepare("
+        SELECT r.*, u.username, u.display_name 
+        FROM replies r 
+        JOIN users u ON r.user_id = u.id 
+        WHERE r.post_id = ? 
+        ORDER BY r.created_at ASC
+    ");
+    $stmt->execute([$post['id']]);
+    $post['replies'] = $stmt->fetchAll();
+}
+
 $page_title = htmlspecialchars($group['name']) . " - NicheNest";
 include '../includes/header.php';
 ?>
@@ -138,15 +210,111 @@ include '../includes/header.php';
 
     <div class="row">
         <div class="col-lg-8">
+            <!-- Create New Post -->
+            <?php if ($isMember): ?>
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5><i class="bi bi-plus-circle"></i> Create New Post</h5>
+                    </div>
+                    <div class="card-body">
+                        <?php if (!empty($errors)): ?>
+                            <div class="alert alert-danger">
+                                <ul class="mb-0">
+                                    <?php foreach ($errors as $error): ?>
+                                        <li><?php echo htmlspecialchars($error); ?></li>
+                                    <?php endforeach; ?>
+                                </ul>
+                            </div>
+                        <?php endif; ?>
+
+                        <?php if ($success): ?>
+                            <div class="alert alert-success"><?php echo htmlspecialchars($success); ?></div>
+                        <?php endif; ?>
+
+                        <form method="POST" action="">
+                            <div class="mb-3">
+                                <label for="title" class="form-label">Title</label>
+                                <input type="text" class="form-control" id="title" name="title" 
+                                       value="<?php echo htmlspecialchars($_POST['title'] ?? ''); ?>" required>
+                            </div>
+                            <div class="mb-3">
+                                <label for="content" class="form-label">Content</label>
+                                <textarea class="form-control" id="content" name="content" rows="4" required><?php echo htmlspecialchars($_POST['content'] ?? ''); ?></textarea>
+                            </div>
+                            <button type="submit" name="create_post" class="btn btn-primary">
+                                <i class="bi bi-send"></i> Create Post
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            <?php endif; ?>
+
+            <!-- Group Posts -->
             <div class="card">
                 <div class="card-header">
                     <h5><i class="bi bi-chat-left-text"></i> Group Feed</h5>
                 </div>
                 <div class="card-body">
-                    <div class="alert alert-info">
-                        <i class="bi bi-info-circle"></i> Group feed and posts functionality coming soon! 
-                        This is where members will share content and discussions.
-                    </div>
+                    <?php if (empty($posts)): ?>
+                        <div class="alert alert-info">
+                            <i class="bi bi-info-circle"></i> No posts yet. 
+                            <?php if ($isMember): ?>
+                                Be the first to share something with the group!
+                            <?php endif; ?>
+                        </div>
+                    <?php else: ?>
+                        <?php foreach ($posts as $post): ?>
+                            <div class="card mb-3">
+                                <div class="card-header d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <strong><?php echo htmlspecialchars($post['display_name'] ?? $post['username']); ?></strong>
+                                        <small class="text-muted"><?php echo timeAgo($post['created_at']); ?></small>
+                                    </div>
+                                </div>
+                                <div class="card-body">
+                                    <h5 class="card-title"><?php echo htmlspecialchars($post['title']); ?></h5>
+                                    <p class="card-text"><?php echo nl2br(htmlspecialchars($post['content'])); ?></p>
+
+                                    <?php if ($isMember): ?>
+                                        <!-- Reply Button -->
+                                        <button class="btn btn-sm btn-outline-primary reply-toggle" data-post-id="<?php echo $post['id']; ?>">
+                                            <i class="bi bi-reply"></i> Reply
+                                        </button>
+
+                                        <!-- Reply Form (hidden by default) -->
+                                        <form method="POST" class="reply-form mt-3 d-none" id="reply-form-<?php echo $post['id']; ?>">
+                                            <input type="hidden" name="post_id" value="<?php echo $post['id']; ?>">
+                                            <div class="mb-2">
+                                                <textarea name="reply_content" class="form-control" rows="2" placeholder="Write a reply..." required></textarea>
+                                            </div>
+                                            <button type="submit" name="create_reply" class="btn btn-sm btn-primary">
+                                                <i class="bi bi-send"></i> Post Reply
+                                            </button>
+                                            <button type="button" class="btn btn-sm btn-secondary cancel-reply">Cancel</button>
+                                        </form>
+                                    <?php endif; ?>
+
+                                    <!-- Replies Section -->
+                                    <?php if (!empty($post['replies'])): ?>
+                                        <div class="mt-3 pt-3 border-top">
+                                            <h6 class="text-muted">Replies (<?php echo count($post['replies']); ?>)</h6>
+                                            <div class="replies">
+                                                <?php foreach ($post['replies'] as $reply): ?>
+                                                    <div class="border-start border-3 ps-3 mb-2">
+                                                        <small class="text-muted">
+                                                            <strong><?php echo htmlspecialchars($reply['display_name'] ?? $reply['username']); ?></strong>
+                                                            <?php echo timeAgo($reply['created_at']); ?>
+                                                        </small>
+                                                        <p class="mb-0"><?php echo nl2br(htmlspecialchars($reply['content'])); ?></p>
+                                                    </div>
+                                                <?php endforeach; ?>
+                                            </div>
+                                        </div>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
                 </div>
             </div>
         </div>

@@ -24,6 +24,7 @@ CREATE TABLE users (
 CREATE TABLE posts (
     id INT PRIMARY KEY AUTO_INCREMENT,
     user_id INT NOT NULL,
+    group_id INT NULL,
     title VARCHAR(255) NOT NULL,
     content TEXT NOT NULL,
     likes_count INT DEFAULT 0,
@@ -32,7 +33,9 @@ CREATE TABLE posts (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (group_id) REFERENCES `groups`(id) ON DELETE CASCADE,
     INDEX idx_user_id (user_id),
+    INDEX idx_group_id (group_id),
     INDEX idx_created_at (created_at),
     INDEX idx_flagged (flagged)
 );
