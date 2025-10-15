@@ -46,8 +46,8 @@ include '../includes/header.php';
 
     <?php if (!isLoggedIn()): ?>
         <div class="alert alert-info">
-            <i class="bi bi-info-circle"></i> 
-            <a href="login.php" class="alert-link">Log in</a> or 
+            <i class="bi bi-info-circle"></i>
+            <a href="login.php" class="alert-link">Log in</a> or
             <a href="register.php" class="alert-link">create an account</a> to join groups and participate in discussions.
         </div>
     <?php endif; ?>
