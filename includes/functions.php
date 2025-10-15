@@ -120,3 +120,56 @@ function getPendingMemberRequests($groupId)
     $stmt->execute([$groupId]);
     return $stmt->fetchAll();
 }
+
+function hasPendingGroupInvitation($groupId, $userId)
+{
+    global $pdo;
+    $stmt = $pdo->prepare("SELECT COUNT(*) FROM group_invitations WHERE group_id = ? AND invitee_id = ? AND status = 'pending'");
+    $stmt->execute([$groupId, $userId]);
+    return $stmt->fetchColumn() > 0;
+}
+
+function getPendingInvitationsForUser($userId)
+{
+    global $pdo;
+    $stmt = $pdo->prepare("
+        SELECT gi.*, g.name as group_name, g.description as group_description, 
+               u.username as inviter_username, u.display_name as inviter_name
+        FROM group_invitations gi
+        JOIN `groups` g ON gi.group_id = g.id
+        JOIN users u ON gi.inviter_id = u.id
+        WHERE gi.invitee_id = ? AND gi.status = 'pending'
+        ORDER BY gi.created_at DESC
+    ");
+    $stmt->execute([$userId]);
+    return $stmt->fetchAll();
+}
+
+function searchUsersNotInGroup($groupId, $searchTerm = '', $limit = 10)
+{
+    global $pdo;
+    
+    $sql = "
+        SELECT u.id, u.username, u.display_name, u.avatar, u.email
+        FROM users u
+        WHERE u.id NOT IN (SELECT user_id FROM group_members WHERE group_id = ?)
+        AND u.id NOT IN (SELECT invitee_id FROM group_invitations WHERE group_id = ? AND status = 'pending')
+    ";
+    
+    $params = [$groupId, $groupId];
+    
+    if (!empty($searchTerm)) {
+        $sql .= " AND (u.username LIKE ? OR u.display_name LIKE ? OR u.email LIKE ?)";
+        $searchPattern = '%' . $searchTerm . '%';
+        $params[] = $searchPattern;
+        $params[] = $searchPattern;
+        $params[] = $searchPattern;
+    }
+    
+    $sql .= " ORDER BY u.username ASC LIMIT ?";
+    $params[] = $limit;
+    
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute($params);
+    return $stmt->fetchAll();
+}

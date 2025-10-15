@@ -174,6 +174,25 @@ CREATE TABLE group_member_requests (
     INDEX idx_status (status)
 );
 
+-- Group invitations table
+CREATE TABLE group_invitations (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    group_id INT NOT NULL,
+    inviter_id INT NOT NULL,
+    invitee_id INT NOT NULL,
+    status ENUM('pending', 'accepted', 'declined') DEFAULT 'pending',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (group_id) REFERENCES `groups`(id) ON DELETE CASCADE,
+    FOREIGN KEY (inviter_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (invitee_id) REFERENCES users(id) ON DELETE CASCADE,
+    UNIQUE KEY unique_group_invitation (group_id, invitee_id),
+    INDEX idx_group_id (group_id),
+    INDEX idx_inviter_id (inviter_id),
+    INDEX idx_invitee_id (invitee_id),
+    INDEX idx_status (status)
+);
+
 -- Create indexes for better performance
 -- These are already included in the table definitions above, but listed here for reference:
 -- CREATE INDEX idx_users_email ON users(email);
