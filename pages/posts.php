@@ -39,10 +39,12 @@ if (isCurrentUserSuspended()) {
 }
 
 
+// Get all posts with user info (excluding group posts)
 $stmt = $pdo->prepare("
     SELECT p.*, u.username, u.display_name 
     FROM posts p 
     JOIN users u ON p.user_id = u.id 
+    WHERE p.group_id IS NULL
     ORDER BY p.created_at DESC
 ");
 $stmt->execute();
