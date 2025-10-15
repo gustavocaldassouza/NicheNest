@@ -1,5 +1,15 @@
 <?php
 
+function isCurrentUserSuspended()
+{
+    if (!isLoggedIn()) return false;
+    global $pdo;
+    $stmt = $pdo->prepare("SELECT status FROM users WHERE id = ?");
+    $stmt->execute([getCurrentUserId()]);
+    $user = $stmt->fetch();
+    return $user && $user['status'] === 'suspended';
+}
+
 function isLoggedIn()
 {
     return isset($_SESSION['user_id']);

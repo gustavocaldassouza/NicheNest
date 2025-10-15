@@ -10,7 +10,10 @@ requireLogin();
 $errors = [];
 $success = '';
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_post'])) {
+
+if (isCurrentUserSuspended()) {
+    $errors[] = 'Your account is suspended. You cannot create posts.';
+} elseif ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_post'])) {
     $title = sanitizeInput($_POST['title']);
     $content = sanitizeInput($_POST['content']);
 
@@ -27,6 +30,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_post'])) {
             $stmt->execute([getCurrentUserId(), $title, $content]);
             $success = 'Post created successfully!';
             $_POST = [];
+            header('Location: posts.php?success=1');
+            exit();
         } catch (PDOException $e) {
             $errors[] = 'Failed to create post. Please try again.';
         }
@@ -68,20 +73,26 @@ include '../includes/header.php';
                     <div class="alert alert-success"><?php echo htmlspecialchars($success); ?></div>
                 <?php endif; ?>
 
-                <form method="POST" action="">
-                    <div class="mb-3">
-                        <label for="title" class="form-label">Title</label>
-                        <input type="text" class="form-control" id="title" name="title"
-                            value="<?php echo htmlspecialchars($_POST['title'] ?? ''); ?>" required>
+                <?php if (isCurrentUserSuspended()): ?>
+                    <div class="alert alert-warning">
+                        <i class="bi bi-exclamation-triangle"></i> Your account is suspended. You cannot create posts.
                     </div>
-                    <div class="mb-3">
-                        <label for="content" class="form-label">Content</label>
-                        <textarea class="form-control" id="content" name="content" rows="4" required><?php echo htmlspecialchars($_POST['content'] ?? ''); ?></textarea>
-                    </div>
-                    <button type="submit" name="create_post" class="btn btn-primary">
-                        <i class="bi bi-send"></i> Create Post
-                    </button>
-                </form>
+                <?php else: ?>
+                    <form method="POST" action="">
+                        <div class="mb-3">
+                            <label for="title" class="form-label">Title</label>
+                            <input type="text" class="form-control" id="title" name="title"
+                                value="<?php echo htmlspecialchars($_POST['title'] ?? ''); ?>" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="content" class="form-label">Content</label>
+                            <textarea class="form-control" id="content" name="content" rows="4" required><?php echo htmlspecialchars($_POST['content'] ?? ''); ?></textarea>
+                        </div>
+                        <button type="submit" name="create_post" class="btn btn-primary">
+                            <i class="bi bi-send"></i> Create Post
+                        </button>
+                    </form>
+                <?php endif; ?>
             </div>
         </div>
 

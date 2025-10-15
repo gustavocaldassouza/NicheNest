@@ -10,8 +10,13 @@ require_once $basePath . '/includes/notifications.php';
 
 header('Content-Type: application/json');
 
+
 if (!isLoggedIn()) {
     echo json_encode(['success' => false, 'message' => 'You must be logged in to reply']);
+    exit;
+}
+if (function_exists('isCurrentUserSuspended') ? isCurrentUserSuspended() : false) {
+    echo json_encode(['success' => false, 'message' => 'Your account is suspended. You cannot reply.']);
     exit;
 }
 
