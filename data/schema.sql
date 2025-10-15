@@ -20,10 +20,60 @@ CREATE TABLE users (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
+
+-- Groups table
+CREATE TABLE `groups` (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(100) NOT NULL,
+    description TEXT,
+    owner_id INT NOT NULL,
+    privacy ENUM('public', 'private') DEFAULT 'public',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (owner_id) REFERENCES users(id) ON DELETE CASCADE,
+    INDEX idx_owner_id (owner_id),
+    INDEX idx_privacy (privacy),
+    INDEX idx_created_at (created_at)
+);
+
+
+-- Group members table
+CREATE TABLE group_members (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    group_id INT NOT NULL,
+    user_id INT NOT NULL,
+    role ENUM('owner', 'member') DEFAULT 'member',
+    joined_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (group_id) REFERENCES `groups`(id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    UNIQUE KEY unique_group_member (group_id, user_id),
+    INDEX idx_group_id (group_id),
+    INDEX idx_user_id (user_id)
+);
+
+
+-- Group member requests table
+CREATE TABLE group_member_requests (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    group_id INT NOT NULL,
+    user_id INT NOT NULL,
+    status ENUM('pending', 'approved', 'denied') DEFAULT 'pending',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (group_id) REFERENCES `groups`(id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    UNIQUE KEY unique_group_request (group_id, user_id),
+    INDEX idx_group_id (group_id),
+    INDEX idx_user_id (user_id),
+    INDEX idx_status (status)
+);
+
+
 -- Posts table
 CREATE TABLE posts (
     id INT PRIMARY KEY AUTO_INCREMENT,
     user_id INT NOT NULL,
+    group_id INT NULL,
     title VARCHAR(255) NOT NULL,
     content TEXT NOT NULL,
     likes_count INT DEFAULT 0,
@@ -32,10 +82,13 @@ CREATE TABLE posts (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (group_id) REFERENCES `groups`(id) ON DELETE CASCADE,
     INDEX idx_user_id (user_id),
+    INDEX idx_group_id (group_id),
     INDEX idx_created_at (created_at),
     INDEX idx_flagged (flagged)
 );
+
 
 -- Replies table
 CREATE TABLE replies (
@@ -51,6 +104,7 @@ CREATE TABLE replies (
     INDEX idx_user_id (user_id),
     INDEX idx_created_at (created_at)
 );
+
 
 -- Likes table (for future implementation)
 CREATE TABLE likes (
@@ -69,6 +123,7 @@ CREATE TABLE likes (
     INDEX idx_reply_id (reply_id)
 );
 
+
 -- Notifications table (for future implementation)
 CREATE TABLE notifications (
     id INT PRIMARY KEY AUTO_INCREMENT,
@@ -85,6 +140,7 @@ CREATE TABLE notifications (
     INDEX idx_created_at (created_at)
 );
 
+
 -- Sessions table (optional - for database-based sessions)
 CREATE TABLE sessions (
     id VARCHAR(128) PRIMARY KEY,
@@ -96,6 +152,7 @@ CREATE TABLE sessions (
     INDEX idx_expires (expires),
     INDEX idx_user_id (user_id)
 );
+
 
 -- Moderation logs table
 CREATE TABLE moderation_logs (
@@ -112,9 +169,11 @@ CREATE TABLE moderation_logs (
     INDEX idx_created_at (created_at)
 );
 
+
 -- Insert sample admin user (password: admin123)
 INSERT INTO users (username, email, password, display_name, role) VALUES 
 ('admin', 'admin@nichenest.local', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'Administrator', 'admin');
+
 
 -- Sample data for testing
 INSERT INTO users (username, email, password, display_name, bio) VALUES 
@@ -129,50 +188,6 @@ INSERT INTO replies (post_id, user_id, content) VALUES
 (1, 3, 'Thanks for creating this platform! Looking forward to great discussions.'),
 (2, 2, 'Great tips! I especially agree with the lighting advice. Natural light makes such a difference.');
 
--- Groups table
-CREATE TABLE `groups` (
-    id INT PRIMARY KEY AUTO_INCREMENT,
-    name VARCHAR(100) NOT NULL,
-    description TEXT,
-    owner_id INT NOT NULL,
-    privacy ENUM('public', 'private') DEFAULT 'public',
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (owner_id) REFERENCES users(id) ON DELETE CASCADE,
-    INDEX idx_owner_id (owner_id),
-    INDEX idx_privacy (privacy),
-    INDEX idx_created_at (created_at)
-);
-
--- Group members table
-CREATE TABLE group_members (
-    id INT PRIMARY KEY AUTO_INCREMENT,
-    group_id INT NOT NULL,
-    user_id INT NOT NULL,
-    role ENUM('owner', 'member') DEFAULT 'member',
-    joined_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (group_id) REFERENCES `groups`(id) ON DELETE CASCADE,
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-    UNIQUE KEY unique_group_member (group_id, user_id),
-    INDEX idx_group_id (group_id),
-    INDEX idx_user_id (user_id)
-);
-
--- Group member requests table
-CREATE TABLE group_member_requests (
-    id INT PRIMARY KEY AUTO_INCREMENT,
-    group_id INT NOT NULL,
-    user_id INT NOT NULL,
-    status ENUM('pending', 'approved', 'denied') DEFAULT 'pending',
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (group_id) REFERENCES `groups`(id) ON DELETE CASCADE,
-    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-    UNIQUE KEY unique_group_request (group_id, user_id),
-    INDEX idx_group_id (group_id),
-    INDEX idx_user_id (user_id),
-    INDEX idx_status (status)
-);
 
 -- Group invitations table
 CREATE TABLE group_invitations (
@@ -198,3 +213,4 @@ CREATE TABLE group_invitations (
 -- CREATE INDEX idx_users_email ON users(email);
 -- CREATE INDEX idx_posts_user_created ON posts(user_id, created_at);
 -- CREATE INDEX idx_replies_post_created ON replies(post_id, created_at);
+-- Create indexes for better performance
