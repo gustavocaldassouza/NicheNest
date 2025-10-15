@@ -56,7 +56,7 @@ if ($group['privacy'] === 'private' && !$isMember) {
                                 <i class="bi bi-hourglass-split"></i> Your join request is pending approval
                             </div>
                         <?php else: ?>
-                            <form method="POST" action="../ajax/join_group.php" class="mt-3">
+                            <form method="POST" action="/ajax/join_group.php" class="mt-3">
                                 <input type="hidden" name="group_id" value="<?php echo $groupId; ?>">
                                 <button type="submit" class="btn btn-primary">
                                     <i class="bi bi-person-plus"></i> Request to Join

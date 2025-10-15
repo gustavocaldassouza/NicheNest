@@ -1,15 +1,16 @@
 <?php
 session_start();
-require_once '../includes/config.php';
-require_once '../includes/functions.php';
-require_once '../includes/auth.php';
-require_once '../includes/notifications.php';
+$basePath = dirname(__DIR__);
+require_once $basePath . '/includes/config.php';
+require_once $basePath . '/includes/functions.php';
+require_once $basePath . '/includes/auth.php';
+require_once $basePath . '/includes/notifications.php';
 
 requireLogin();
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     setFlashMessage('Invalid request method', 'danger');
-    redirect('../pages/groups.php');
+    redirect('/pages/groups.php');
 }
 
 $groupId = isset($_POST['group_id']) ? (int)$_POST['group_id'] : 0;
@@ -17,7 +18,7 @@ $currentUserId = getCurrentUserId();
 
 if (!$groupId) {
     setFlashMessage('Invalid group ID', 'danger');
-    redirect('../pages/groups.php');
+    redirect('/pages/groups.php');
 }
 
 // Get group details
@@ -27,19 +28,19 @@ $group = $stmt->fetch();
 
 if (!$group) {
     setFlashMessage('Group not found', 'danger');
-    redirect('../pages/groups.php');
+    redirect('/pages/groups.php');
 }
 
 // Check if user is already a member
 if (isGroupMember($groupId, $currentUserId)) {
     setFlashMessage('You are already a member of this group', 'info');
-    redirect('../pages/group_view.php?id=' . $groupId);
+    redirect('/pages/group_view.php?id=' . $groupId);
 }
 
 // Check if there's already a pending request
 if (hasPendingGroupRequest($groupId, $currentUserId)) {
     setFlashMessage('You already have a pending join request for this group', 'info');
-    redirect('../pages/group_view.php?id=' . $groupId);
+    redirect('/pages/group_view.php?id=' . $groupId);
 }
 
 try {
@@ -70,4 +71,4 @@ try {
     setFlashMessage('An error occurred while processing your request. Please try again.', 'danger');
 }
 
-redirect('../pages/group_view.php?id=' . $groupId);
+redirect('/pages/group_view.php?id=' . $groupId);

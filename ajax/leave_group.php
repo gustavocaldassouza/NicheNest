@@ -1,8 +1,9 @@
 <?php
 session_start();
-require_once '../includes/config.php';
-require_once '../includes/functions.php';
-require_once '../includes/auth.php';
+$basePath = dirname(__DIR__);
+require_once $basePath . '/includes/config.php';
+require_once $basePath . '/includes/functions.php';
+require_once $basePath . '/includes/auth.php';
 
 requireLogin();
 
