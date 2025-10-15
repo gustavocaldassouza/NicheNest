@@ -116,6 +116,9 @@ require_once 'notifications.php';
                             </a>
                             <ul class="dropdown-menu" role="menu">
                                 <li role="none"><a class="dropdown-item" href="/pages/profile.php" role="menuitem">My Profile</a></li>
+                                <li role="none"><a class="dropdown-item" href="/pages/invitations.php" role="menuitem">
+                                    <i class="bi bi-envelope"></i> My Invitations
+                                </a></li>
                                 <li role="none">
                                     <hr class="dropdown-divider">
                                 </li>
