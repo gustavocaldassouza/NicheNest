@@ -37,6 +37,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['create_post'])) {
             $success = 'Post created successfully!';
             // Clear form data
             $_POST = [];
+            header('Location: group_view.php?id=' . $groupId . '&success=1');
+            exit();
         } catch (PDOException $e) {
             $errors[] = 'Failed to create post. Please try again.';
         }
@@ -88,8 +90,8 @@ if ($group['privacy'] === 'private' && !$isMember) {
     // Private group and user is not a member
     $page_title = htmlspecialchars($group['name']) . " - NicheNest";
     include '../includes/header.php';
-    ?>
-    
+?>
+
     <div class="container mt-4">
         <div class="row justify-content-center">
             <div class="col-md-8">
@@ -98,7 +100,7 @@ if ($group['privacy'] === 'private' && !$isMember) {
                         <i class="bi bi-lock display-1 text-warning"></i>
                         <h3 class="mt-3">Private Group</h3>
                         <p class="text-muted">This is a private group. You need to request membership to view its content.</p>
-                        
+
                         <?php if ($hasPendingRequest): ?>
                             <div class="alert alert-info">
                                 <i class="bi bi-hourglass-split"></i> Your join request is pending approval
@@ -111,7 +113,7 @@ if ($group['privacy'] === 'private' && !$isMember) {
                                 </button>
                             </form>
                         <?php endif; ?>
-                        
+
                         <a href="groups.php" class="btn btn-outline-secondary mt-2">
                             <i class="bi bi-arrow-left"></i> Back to Groups
                         </a>
@@ -120,8 +122,8 @@ if ($group['privacy'] === 'private' && !$isMember) {
             </div>
         </div>
     </div>
-    
-    <?php
+
+<?php
     include '../includes/footer.php';
     exit;
 }
@@ -195,8 +197,8 @@ include '../includes/header.php';
                             <i class="bi bi-people"></i> Manage Members
                         </a>
                     <?php elseif ($isMember): ?>
-                        <form method="POST" action="../ajax/leave_group.php" class="d-inline" 
-                              onsubmit="return confirm('Are you sure you want to leave this group?');">
+                        <form method="POST" action="../ajax/leave_group.php" class="d-inline"
+                            onsubmit="return confirm('Are you sure you want to leave this group?');">
                             <input type="hidden" name="group_id" value="<?php echo $groupId; ?>">
                             <button type="submit" class="btn btn-outline-danger">
                                 <i class="bi bi-box-arrow-right"></i> Leave Group
@@ -234,8 +236,8 @@ include '../includes/header.php';
                         <form method="POST" action="">
                             <div class="mb-3">
                                 <label for="title" class="form-label">Title</label>
-                                <input type="text" class="form-control" id="title" name="title" 
-                                       value="<?php echo htmlspecialchars($_POST['title'] ?? ''); ?>" required>
+                                <input type="text" class="form-control" id="title" name="title"
+                                    value="<?php echo htmlspecialchars($_POST['title'] ?? ''); ?>" required>
                             </div>
                             <div class="mb-3">
                                 <label for="content" class="form-label">Content</label>
@@ -257,7 +259,7 @@ include '../includes/header.php';
                 <div class="card-body">
                     <?php if (empty($posts)): ?>
                         <div class="alert alert-info">
-                            <i class="bi bi-info-circle"></i> No posts yet. 
+                            <i class="bi bi-info-circle"></i> No posts yet.
                             <?php if ($isMember): ?>
                                 Be the first to share something with the group!
                             <?php endif; ?>
