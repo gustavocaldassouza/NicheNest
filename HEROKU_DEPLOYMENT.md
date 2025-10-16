@@ -16,6 +16,8 @@ Click the button below to deploy NicheNest to Heroku in one click:
 
 ## Manual Deployment
 
+**Note:** NicheNest is configured to work with Apache on Heroku. The `.htaccess` file and `index.php` in the root directory handle routing for production environments, similar to how `router.php` works for local development.
+
 ### 1. Login to Heroku
 
 ```bash
