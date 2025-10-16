@@ -4,6 +4,8 @@
 RewriteEngine On
 
 # Route requests through index.php (for Heroku/Apache)
+# Only route requests that don't match existing files or directories
+# Static assets (CSS, JS, images) are served directly by Apache
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule ^(.*)$ index.php [QSA,L]

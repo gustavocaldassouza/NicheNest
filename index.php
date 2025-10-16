@@ -1,6 +1,8 @@
 <?php
 // Main entry point for Apache/Heroku
 // Mimics the behavior of router.php for production environments
+// Note: This file maintains the same routing logic and directory changes
+// as router.php to ensure compatibility with the existing application structure
 
 $requestUri = $_SERVER['REQUEST_URI'];
 $parsedUrl = parse_url($requestUri);
