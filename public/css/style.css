@@ -137,75 +137,111 @@ body {
     font-weight: bold !important;
 }
 
-/* Enhanced focus indicators for interactive elements only */
-button:focus,
-input:focus,
-select:focus,
-textarea:focus,
-a:focus,
-[tabindex]:focus,
-[role="button"]:focus {
-    outline: var(--focus-ring-width) solid var(--focus-ring-color) !important;
-    outline-offset: var(--focus-ring-offset) !important;
+/* Enhanced focus indicators for interactive elements only - keyboard navigation */
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+a:focus-visible,
+[tabindex]:focus-visible,
+[role="button"]:focus-visible {
+    outline: 2px solid var(--focus-ring-color);
+    outline-offset: 2px;
+}
+
+/* Remove default focus outline on mouse clicks */
+button:focus:not(:focus-visible),
+input:focus:not(:focus-visible),
+select:focus:not(:focus-visible),
+textarea:focus:not(:focus-visible),
+a:focus:not(:focus-visible),
+[tabindex]:focus:not(:focus-visible),
+[role="button"]:focus:not(:focus-visible) {
+    outline: none;
 }
 
 /* Specific focus styles for form controls */
 .form-control:focus,
 .form-select:focus,
 .form-check-input:focus {
-    border-color: var(--primary-color) !important;
-    box-shadow: 0 0 0 0.25rem rgba(0, 102, 204, 0.25) !important;
-    outline: 2px solid var(--focus-ring-color) !important;
-    outline-offset: 2px !important;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.25rem rgba(0, 102, 204, 0.25);
+}
+
+.form-control:focus-visible,
+.form-select:focus-visible,
+.form-check-input:focus-visible {
+    outline: 2px solid var(--focus-ring-color);
+    outline-offset: 2px;
 }
 
 /* Button focus styles */
 .btn:focus,
 .btn:focus-visible {
-    outline: 2px solid var(--focus-ring-color) !important;
-    outline-offset: 2px !important;
-    box-shadow: 0 0 0 0.25rem rgba(0, 102, 204, 0.25) !important;
+    box-shadow: 0 0 0 0.25rem rgba(0, 102, 204, 0.15);
+}
+
+.btn:focus:not(:focus-visible) {
+    outline: none;
+    box-shadow: none;
 }
 
 /* Link focus styles */
-a:focus,
 a:focus-visible {
-    outline: 2px solid var(--focus-ring-color) !important;
-    outline-offset: 2px !important;
-    text-decoration: underline !important;
-    background-color: rgba(0, 102, 204, 0.1) !important;
-    border-radius: 2px !important;
-    padding: 1px 2px !important;
+    outline: 2px solid var(--focus-ring-color);
+    outline-offset: 2px;
+    text-decoration: underline;
+}
+
+a:focus:not(:focus-visible) {
+    outline: none;
 }
 
 /* Navigation link focus styles */
-.nav-link:focus,
 .nav-link:focus-visible {
-    background-color: rgba(255, 255, 255, 0.1) !important;
-    border-radius: 4px !important;
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+    outline: 2px solid rgba(255, 255, 255, 0.5);
+    outline-offset: 2px;
+}
+
+.nav-link:focus:not(:focus-visible) {
+    outline: none;
 }
 
 /* Dropdown focus styles */
-.dropdown-item:focus,
 .dropdown-item:focus-visible {
-    background-color: var(--primary-light) !important;
-    color: var(--primary-color) !important;
-    outline: 2px solid var(--focus-ring-color) !important;
-    outline-offset: -2px !important;
+    background-color: var(--primary-light);
+    color: var(--primary-color);
+    outline: 2px solid var(--focus-ring-color);
+    outline-offset: -2px;
+}
+
+.dropdown-item:focus:not(:focus-visible) {
+    outline: none;
 }
 
 /* Card focus styles when used as interactive elements */
-.card:focus,
+.card:focus-visible,
 .card:focus-within {
-    box-shadow: 0 0 0 2px var(--focus-ring-color) !important;
-    outline: none !important;
+    box-shadow: 0 0 0 2px var(--focus-ring-color);
+}
+
+.card:focus:not(:focus-visible) {
+    outline: none;
 }
 
 /* Ensure sufficient contrast for focus indicators on dark backgrounds */
-.navbar-dark .nav-link:focus,
-.bg-dark *:focus {
-    outline-color: #ffffff !important;
-    box-shadow: 0 0 0 0.25rem rgba(255, 255, 255, 0.25) !important;
+.navbar-dark .nav-link:focus-visible,
+.bg-dark *:focus-visible {
+    outline-color: #ffffff;
+    box-shadow: 0 0 0 0.25rem rgba(255, 255, 255, 0.25);
+}
+
+.navbar-dark .nav-link:focus:not(:focus-visible),
+.bg-dark *:focus:not(:focus-visible) {
+    outline: none;
+    box-shadow: none;
 }
 
 /* ==============================================
@@ -263,20 +299,25 @@ a:focus-visible {
    ============================================== */
 
 /* Ensure interactive elements are keyboard accessible */
-[tabindex="0"],
-[tabindex="-1"]:focus {
-    outline: 2px solid var(--focus-ring-color) !important;
-    outline-offset: 2px !important;
+[tabindex="0"]:focus-visible,
+[tabindex="-1"]:focus-visible {
+    outline: 2px solid var(--focus-ring-color);
+    outline-offset: 2px;
+}
+
+[tabindex="0"]:focus:not(:focus-visible),
+[tabindex="-1"]:focus:not(:focus-visible) {
+    outline: none;
 }
 
 /* Improve dropdown keyboard navigation */
 .dropdown-menu {
-    border: 2px solid var(--border-color) !important;
+    border: 2px solid var(--border-color);
 }
 
 .dropdown-menu .dropdown-item {
-    padding: 0.5rem 1rem !important;
-    border: 1px solid transparent !important;
+    padding: 0.5rem 1rem;
+    border: 1px solid transparent;
 }
 
 /* Better visual hierarchy */
@@ -324,10 +365,14 @@ p, li, span, div {
         line-height: 1.7 !important;
     }
     
-    /* Better focus indicators on mobile */
-    *:focus {
-        outline-width: 3px !important;
-        outline-offset: 3px !important;
+    /* Better focus indicators on mobile - keyboard only */
+    *:focus-visible {
+        outline-width: 3px;
+        outline-offset: 3px;
+    }
+    
+    *:focus:not(:focus-visible) {
+        outline: none;
     }
 }
 
