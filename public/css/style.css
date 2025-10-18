@@ -56,6 +56,7 @@
 
 html {
     font-size: 16px; /* Base font size for accessibility */
+    height: 100%;
 }
 
 body {
@@ -63,6 +64,17 @@ body {
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     color: var(--text-primary);
     line-height: 1.6;
+    min-height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+main {
+    flex: 1 0 auto;
+}
+
+footer {
+    flex-shrink: 0;
 }
 
 /* Enhanced typography for accessibility */
@@ -83,6 +95,13 @@ body {
     background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-hover) 100%);
     border-radius: 0 0 15px 15px;
     color: var(--text-white) !important;
+}
+
+.hero-section h1,
+.hero-section .display-4,
+.hero-section p,
+.hero-section .lead {
+    color: #ffffff !important;
 }
 
 .card {
@@ -381,9 +400,12 @@ p, li, span, div {
     font-size: 1.5rem;
 }
 
-.hero-section {
-    background: linear-gradient(135deg, var(--primary-color) 0%, #0056b3 100%);
-    border-radius: 0 0 15px 15px;
+/* Hero section additional styles */
+.hero-section h1,
+.hero-section h2,
+.hero-section h3,
+.hero-section p {
+    color: #ffffff !important;
 }
 
 .card {
