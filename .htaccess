@@ -19,7 +19,7 @@ RewriteRule ^(.*)$ index.php [QSA,L]
 </IfModule>
 
 # Hide PHP version and server info
-ServerTokens Prod
+# Note: ServerTokens not allowed in Heroku - managed by platform
 <IfModule mod_headers.c>
     Header unset X-Powered-By
 </IfModule>
