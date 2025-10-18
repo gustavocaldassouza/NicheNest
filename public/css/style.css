@@ -137,8 +137,14 @@ body {
     font-weight: bold !important;
 }
 
-/* Enhanced focus indicators for all interactive elements */
-*:focus {
+/* Enhanced focus indicators for interactive elements only */
+button:focus,
+input:focus,
+select:focus,
+textarea:focus,
+a:focus,
+[tabindex]:focus,
+[role="button"]:focus {
     outline: var(--focus-ring-width) solid var(--focus-ring-color) !important;
     outline-offset: var(--focus-ring-offset) !important;
 }
