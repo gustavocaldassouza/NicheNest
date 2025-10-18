@@ -37,7 +37,17 @@ Before running NicheNest, ensure you have the following installed:
 
 ## 🚀 Quick Start
 
-### Option 1: Using Docker MySQL (Recommended)
+### Deploy to Heroku (Production)
+
+The fastest way to get NicheNest running in production:
+
+[![Deploy](https://www.herokucdn.com/deploy/button.svg)](https://heroku.com/deploy)
+
+For detailed Heroku deployment instructions, see [HEROKU_DEPLOYMENT.md](HEROKU_DEPLOYMENT.md).
+
+### Local Development
+
+#### Option 1: Using Docker MySQL (Recommended)
 
 1. **Build and run MySQL with Docker**:
 
@@ -61,7 +71,7 @@ Before running NicheNest, ensure you have the following installed:
    http://localhost:8000
    ```
 
-### Option 2: Using Standard Docker MySQL
+#### Option 2: Using Standard Docker MySQL
 
 1. **Start MySQL with Docker**:
 
@@ -87,7 +97,7 @@ Before running NicheNest, ensure you have the following installed:
    http://localhost:8000
    ```
 
-### Option 3: Local MySQL Installation
+#### Option 3: Local MySQL Installation
 
 1. **Set up MySQL** and create a database named `nichenest`
 2. **Import the schema**:

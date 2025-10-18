@@ -1,0 +1,44 @@
+{
+  "name": "NicheNest",
+  "description": "Micro-Community Platform for Focused Groups",
+  "keywords": ["php", "mysql", "community", "social-network", "groups"],
+  "website": "https://github.com/gustavocaldassouza/NicheNest",
+  "repository": "https://github.com/gustavocaldassouza/NicheNest",
+  "logo": "",
+  "success_url": "/",
+  "env": {
+    "APP_NAME": {
+      "description": "The name of your application",
+      "value": "NicheNest",
+      "required": false
+    },
+    "APP_URL": {
+      "description": "The URL where your app will be accessible",
+      "required": true
+    }
+  },
+  "formation": {
+    "web": {
+      "quantity": 1,
+      "size": "basic"
+    }
+  },
+  "addons": [
+    {
+      "plan": "cleardb:ignite",
+      "as": "DATABASE"
+    }
+  ],
+  "buildpacks": [
+    {
+      "url": "heroku/php"
+    }
+  ],
+  "environments": {
+    "test": {
+      "scripts": {
+        "test": "echo 'No tests configured'"
+      }
+    }
+  }
+}
