@@ -43,17 +43,8 @@ DirectoryIndex index.php index.html
     Deny from all
 </Files>
 
-# Block access to includes directory from web
-<Directory "includes">
-    Order deny,allow
-    Deny from all
-</Directory>
-
-# Block access to data directory from web
-<Directory "data">
-    Order deny,allow
-    Deny from all
-</Directory>
+# Note: Directory blocks not allowed in Heroku .htaccess
+# Access control for includes/ and data/ managed at application level
 
 # Enable compression for better performance
 <IfModule mod_deflate.c>
@@ -93,13 +84,8 @@ DirectoryIndex index.php index.html
     </IfModule>
 </FilesMatch>
 
-# Prevent execution of PHP files in uploads directory
-<Directory "public/uploads">
-    <FilesMatch "\.php$">
-        Order allow,deny
-        Deny from all
-    </FilesMatch>
-</Directory>
+# Note: PHP execution prevention in uploads/ managed at application level
+# Directory blocks not allowed in Heroku .htaccess
 
 # Error pages (optional - customize as needed)
 # ErrorDocument 404 /404.html
