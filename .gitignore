@@ -1,0 +1,83 @@
+# Dependencies
+/vendor/
+
+# Environment files
+.env
+.env.local
+.env.production
+
+# Logs
+*.log
+logs/
+error.log
+access.log
+
+# Runtime files
+*.tmp
+*.temp
+*.cache
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Uploads (keep structure but ignore content)
+public/uploads/*
+!public/uploads/.gitkeep
+
+# Database
+*.sqlite
+*.db
+
+# Backup files
+*.bak
+*.backup
+
+# Node modules (if using any frontend build tools)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Build artifacts
+dist/
+build/
+
+# Coverage reports
+coverage/
+.nyc_output/
+
+# Temporary files
+tmp/
+temp/
+
+# Docker
+.dockerignore
+docker-compose.override.yml
+docker-compose.local.yml
+
+# Jenkins
+.jenkins/workspace/
+.jenkins/logs/
+
+# Backup files
+backup_*.sql
+*.backup
+
+# Production secrets
+.env.production
+.env.staging
+# Exclude test scripts from commits
+test_logging*.php

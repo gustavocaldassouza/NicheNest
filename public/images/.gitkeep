@@ -1,0 +1,11 @@
+# Placeholder file
+
+This file ensures the directory is included in version control.
+You can safely delete this file once you have actual content in this directory.
+
+## Purpose
+- `uploads/` - For user uploaded files (avatars, attachments)
+- `images/` - For static site images and assets
+
+## Security Note
+Make sure to configure your web server to prevent execution of PHP files in upload directories.

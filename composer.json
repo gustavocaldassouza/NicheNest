@@ -1,0 +1,19 @@
+{
+    "name": "gustavocaldassouza/nichenest",
+    "description": "Micro-Community Platform for Focused Groups",
+    "type": "project",
+    "license": "MIT",
+    "require": {
+        "php": "^8.0",
+        "ext-pdo": "*",
+        "ext-pdo_mysql": "*",
+        "ext-json": "*",
+        "ext-mbstring": "*"
+    },
+    "require-dev": {},
+    "config": {
+        "optimize-autoloader": true,
+        "preferred-install": "dist",
+        "sort-packages": true
+    }
+}

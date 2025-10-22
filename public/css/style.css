@@ -1,0 +1,931 @@
+/* ==============================================
+   CSS VARIABLES - Accessible Color System
+   ============================================== */
+
+:root {
+    /* Primary Colors - Enhanced for better contrast */
+    --primary-color: #0056b3;        /* Darker blue for better contrast */
+    --primary-hover: #004494;        /* Even darker for hover states */
+    --primary-light: #e3f2fd;        /* Light blue for backgrounds */
+    
+    /* Semantic Colors - WCAG AA compliant */
+    --secondary-color: #495057;       /* Darker gray for better readability */
+    --success-color: #155724;         /* Darker green */
+    --success-bg: #d4edda;            /* Light green background */
+    --info-color: #0c5460;            /* Darker cyan */
+    --info-bg: #d1ecf1;              /* Light cyan background */
+    --warning-color: #856404;         /* Darker yellow */
+    --warning-bg: #fff3cd;            /* Light yellow background */
+    --danger-color: #721c24;          /* Darker red */
+    --danger-bg: #f8d7da;            /* Light red background */
+    
+    /* Neutral Colors */
+    --light-color: #f8f9fa;
+    --dark-color: #212529;
+    --muted-color: #6c757d;
+    
+    /* Text Colors - High contrast */
+    --text-primary: #212529;          /* Dark text on light backgrounds */
+    --text-secondary: #495057;        /* Secondary text */
+    --text-muted: #6c757d;           /* Muted text - still meets AA standard */
+    --text-white: #ffffff;            /* White text on dark backgrounds */
+    
+    /* Background Colors */
+    --bg-primary: #ffffff;
+    --bg-secondary: #f8f9fa;
+    --bg-dark: #212529;
+    
+    /* Border Colors */
+    --border-color: #dee2e6;
+    --border-focus: #80bdff;          /* High contrast focus indicator */
+    
+    /* Shadow Colors */
+    --shadow-sm: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    --shadow-md: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    --shadow-lg: 0 1rem 3rem rgba(0, 0, 0, 0.175);
+    
+    /* Focus Colors - High visibility */
+    --focus-ring-color: #0066cc;
+    --focus-ring-width: 3px;
+    --focus-ring-offset: 2px;
+}
+
+/* ==============================================
+   BASE STYLES - Accessible Typography & Layout
+   ============================================== */
+
+html {
+    font-size: 16px; /* Base font size for accessibility */
+    height: 100%;
+}
+
+body {
+    background-color: var(--bg-secondary);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: var(--text-primary);
+    line-height: 1.6;
+    min-height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+main {
+    flex: 1 0 auto;
+}
+
+footer {
+    flex-shrink: 0;
+}
+
+/* Enhanced typography for accessibility */
+* {
+    box-sizing: border-box;
+}
+/* ==============================================
+   COMPONENT STYLES - Enhanced for Accessibility
+   ============================================== */
+
+.navbar-brand {
+    font-weight: 700;
+    font-size: 1.5rem;
+    color: var(--text-white) !important;
+}
+
+.hero-section {
+    background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-hover) 100%);
+    border-radius: 0 0 15px 15px;
+    color: var(--text-white) !important;
+}
+
+.hero-section h1,
+.hero-section .display-4,
+.hero-section p,
+.hero-section .lead {
+    color: #ffffff !important;
+}
+
+.card {
+    border: 1px solid var(--border-color);
+    box-shadow: var(--shadow-sm);
+    border-radius: 10px;
+    margin-bottom: 1.5rem;
+    background-color: var(--bg-primary);
+}
+
+.card-header {
+    background-color: var(--bg-secondary);
+    border-bottom: 1px solid var(--border-color);
+    border-radius: 10px 10px 0 0 !important;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.form-control {
+    border-color: var(--border-color);
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+}
+
+.form-control:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.2rem rgba(0, 86, 179, 0.25);
+}
+
+.btn {
+    border-radius: 8px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    min-height: 38px; /* Minimum touch target size */
+    padding: 0.5rem 1rem;
+}
+
+/* Skip to main content link */
+.visually-hidden-focusable:focus {
+    position: fixed !important;
+    top: 10px !important;
+    left: 10px !important;
+    z-index: 10000 !important;
+    clip: auto !important;
+    width: auto !important;
+    height: auto !important;
+    padding: 0.5rem 1rem !important;
+    background: var(--focus-ring-color) !important;
+    color: white !important;
+    border-radius: 4px !important;
+    text-decoration: none !important;
+    font-weight: bold !important;
+}
+
+/* Enhanced focus indicators for interactive elements only - keyboard navigation */
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+a:focus-visible,
+[tabindex]:focus-visible,
+[role="button"]:focus-visible {
+    outline: 2px solid var(--focus-ring-color);
+    outline-offset: 2px;
+}
+
+/* Remove default focus outline on mouse clicks */
+button:focus:not(:focus-visible),
+input:focus:not(:focus-visible),
+select:focus:not(:focus-visible),
+textarea:focus:not(:focus-visible),
+a:focus:not(:focus-visible),
+[tabindex]:focus:not(:focus-visible),
+[role="button"]:focus:not(:focus-visible) {
+    outline: none;
+}
+
+/* Specific focus styles for form controls */
+.form-control:focus,
+.form-select:focus,
+.form-check-input:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.25rem rgba(0, 102, 204, 0.25);
+}
+
+.form-control:focus-visible,
+.form-select:focus-visible,
+.form-check-input:focus-visible {
+    outline: 2px solid var(--focus-ring-color);
+    outline-offset: 2px;
+}
+
+/* Button focus styles */
+.btn:focus,
+.btn:focus-visible {
+    box-shadow: 0 0 0 0.25rem rgba(0, 102, 204, 0.15);
+}
+
+.btn:focus:not(:focus-visible) {
+    outline: none;
+    box-shadow: none;
+}
+
+/* Link focus styles */
+a:focus-visible {
+    outline: 2px solid var(--focus-ring-color);
+    outline-offset: 2px;
+    text-decoration: underline;
+}
+
+a:focus:not(:focus-visible) {
+    outline: none;
+}
+
+/* Navigation link focus styles */
+.nav-link:focus-visible {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+    outline: 2px solid rgba(255, 255, 255, 0.5);
+    outline-offset: 2px;
+}
+
+.nav-link:focus:not(:focus-visible) {
+    outline: none;
+}
+
+/* Dropdown focus styles */
+.dropdown-item:focus-visible {
+    background-color: var(--primary-light);
+    color: var(--primary-color);
+    outline: 2px solid var(--focus-ring-color);
+    outline-offset: -2px;
+}
+
+.dropdown-item:focus:not(:focus-visible) {
+    outline: none;
+}
+
+/* Card focus styles when used as interactive elements */
+.card:focus-visible,
+.card:focus-within {
+    box-shadow: 0 0 0 2px var(--focus-ring-color);
+}
+
+.card:focus:not(:focus-visible) {
+    outline: none;
+}
+
+/* Ensure sufficient contrast for focus indicators on dark backgrounds */
+.navbar-dark .nav-link:focus-visible,
+.bg-dark *:focus-visible {
+    outline-color: #ffffff;
+    box-shadow: 0 0 0 0.25rem rgba(255, 255, 255, 0.25);
+}
+
+.navbar-dark .nav-link:focus:not(:focus-visible),
+.bg-dark *:focus:not(:focus-visible) {
+    outline: none;
+    box-shadow: none;
+}
+
+/* ==============================================
+   ENHANCED INTERACTIVE STATES
+   ============================================== */
+
+/* Hover states with accessibility in mind */
+.btn:hover:not(:disabled) {
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-md);
+    transition: all 0.2s ease;
+}
+
+/* Enhanced button styles with better contrast */
+.btn-primary {
+    background-color: var(--primary-color) !important;
+    border-color: var(--primary-color) !important;
+    color: var(--text-white) !important;
+}
+
+.btn-primary:hover,
+.btn-primary:focus {
+    background-color: var(--primary-hover) !important;
+    border-color: var(--primary-hover) !important;
+    color: var(--text-white) !important;
+}
+
+/* Alert styles with better contrast */
+.alert-danger {
+    background-color: var(--danger-bg) !important;
+    border-color: var(--danger-color) !important;
+    color: var(--danger-color) !important;
+}
+
+.alert-success {
+    background-color: var(--success-bg) !important;
+    border-color: var(--success-color) !important;
+    color: var(--success-color) !important;
+}
+
+.alert-info {
+    background-color: var(--info-bg) !important;
+    border-color: var(--info-color) !important;
+    color: var(--info-color) !important;
+}
+
+.alert-warning {
+    background-color: var(--warning-bg) !important;
+    border-color: var(--warning-color) !important;
+    color: var(--warning-color) !important;
+}
+
+/* ==============================================
+   KEYBOARD NAVIGATION ENHANCEMENTS
+   ============================================== */
+
+/* Ensure interactive elements are keyboard accessible */
+[tabindex="0"]:focus-visible,
+[tabindex="-1"]:focus-visible {
+    outline: 2px solid var(--focus-ring-color);
+    outline-offset: 2px;
+}
+
+[tabindex="0"]:focus:not(:focus-visible),
+[tabindex="-1"]:focus:not(:focus-visible) {
+    outline: none;
+}
+
+/* Improve dropdown keyboard navigation */
+.dropdown-menu {
+    border: 2px solid var(--border-color);
+}
+
+.dropdown-menu .dropdown-item {
+    padding: 0.5rem 1rem;
+    border: 1px solid transparent;
+}
+
+/* Better visual hierarchy */
+h1, h2, h3, h4, h5, h6 {
+    color: var(--text-primary) !important;
+    margin-bottom: 1rem !important;
+}
+
+/* Enhanced text readability */
+p, li, span, div {
+    line-height: 1.6 !important;
+    color: var(--text-primary) !important;
+}
+
+.text-muted {
+    color: var(--text-muted) !important;
+}
+
+/* ==============================================
+   RESPONSIVE ACCESSIBILITY
+   ============================================== */
+
+/* Ensure touch targets are large enough (minimum 44px) */
+@media (max-width: 768px) {
+    .btn,
+    .nav-link,
+    .dropdown-item,
+    .form-control,
+    .form-check-input {
+        min-height: 44px !important;
+        min-width: 44px !important;
+        padding: 0.75rem 1rem !important;
+    }
+    
+    /* Larger touch targets for mobile */
+    .navbar-toggler {
+        padding: 0.75rem !important;
+        min-height: 44px !important;
+        min-width: 44px !important;
+    }
+    
+    /* Improved spacing for mobile reading */
+    p, li {
+        font-size: 1rem !important;
+        line-height: 1.7 !important;
+    }
+    
+    /* Better focus indicators on mobile - keyboard only */
+    *:focus-visible {
+        outline-width: 3px;
+        outline-offset: 3px;
+    }
+    
+    *:focus:not(:focus-visible) {
+        outline: none;
+    }
+}
+
+.navbar-brand {
+    font-weight: 700;
+    font-size: 1.5rem;
+}
+
+/* Hero section additional styles */
+.hero-section h1,
+.hero-section h2,
+.hero-section h3,
+.hero-section p {
+    color: #ffffff !important;
+}
+
+.card {
+    border: none;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    border-radius: 10px;
+    margin-bottom: 1.5rem;
+}
+
+.card-header {
+    background-color: var(--light-color);
+    border-bottom: 1px solid #dee2e6;
+    border-radius: 10px 10px 0 0 !important;
+    font-weight: 600;
+}
+
+.form-control:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+}
+
+.btn {
+    border-radius: 8px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.btn:hover {
+    transform: translateY(-1px);
+}
+
+.reply-form {
+    background-color: #f8f9fa;
+    padding: 1rem;
+    border-radius: 8px;
+    border-left: 4px solid var(--primary-color);
+}
+
+.reply-toggle {
+    cursor: pointer;
+}
+
+.profile-avatar {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid var(--primary-color);
+}
+
+.table th {
+    background-color: var(--light-color);
+    border-top: none;
+    font-weight: 600;
+}
+
+.text-primary {
+    color: var(--primary-color) !important;
+}
+
+.bg-primary {
+    background-color: var(--primary-color) !important;
+}
+
+@media (max-width: 768px) {
+    .hero-section {
+        padding: 2rem 0 !important;
+    }
+
+    .hero-section h1 {
+        font-size: 2rem !important;
+    }
+
+    .hero-section .lead {
+        font-size: 1rem;
+    }
+
+    .card {
+        margin-bottom: 1rem;
+    }
+}
+
+.fade-in {
+    animation: fadeIn 0.5s ease-in;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--secondary-color);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--primary-color);
+}
+
+.like-btn {
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border-radius: 20px !important;
+    padding: 0.375rem 0.75rem;
+    font-weight: 500;
+}
+
+.like-btn:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.like-btn:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.like-btn.btn-outline-success:hover {
+    background-color: #198754;
+    border-color: #198754;
+    color: white;
+}
+
+.like-btn.btn-outline-danger:hover {
+    background-color: #dc3545;
+    border-color: #dc3545;
+    color: white;
+}
+
+.like-btn .bi-heart,
+.like-btn .bi-heart-fill {
+    transition: all 0.3s ease;
+}
+
+.like-btn:hover .bi-heart {
+    transform: scale(1.2);
+    color: #198754;
+}
+
+.like-btn:hover .bi-heart-fill {
+    transform: scale(1.2);
+    color: #dc3545;
+}
+
+.like-btn .badge {
+    transition: all 0.3s ease;
+    font-weight: 600;
+}
+
+.like-btn:hover .badge {
+    transform: scale(1.1);
+}
+
+@keyframes likePulse {
+    0% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.1);
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}
+
+.like-btn.liked {
+    animation: likePulse 0.3s ease-in-out;
+}
+
+.like-btn:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+.like-btn:disabled:hover {
+    transform: none;
+    box-shadow: none;
+}
+
+.reply-toggle {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border-radius: 20px !important;
+    padding: 0.375rem 0.75rem;
+    font-weight: 500;
+}
+
+.reply-toggle:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    background-color: #0d6efd;
+    border-color: #0d6efd;
+    color: white;
+}
+
+.reply-toggle:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.reply-toggle .bi-reply {
+    transition: all 0.3s ease;
+}
+
+.reply-toggle:hover .bi-reply {
+    transform: scale(1.2);
+}
+
+.notification-dropdown {
+    border: none;
+    box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    border-radius: 10px;
+    padding: 0;
+}
+
+.notification-dropdown .dropdown-header {
+    background-color: var(--light-color);
+    border-radius: 10px 10px 0 0;
+    padding: 0.75rem 1rem;
+    font-weight: 600;
+    border-bottom: 1px solid #dee2e6;
+}
+
+.notification-item {
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border-bottom: 1px solid #f8f9fa;
+    padding: 0.75rem 1rem;
+}
+
+.notification-item:hover {
+    background-color: #f8f9fa;
+    transform: translateX(2px);
+}
+
+.notification-item:last-child {
+    border-bottom: none;
+}
+
+.notification-item .fw-bold {
+    font-weight: 600 !important;
+}
+
+.notification-item .bg-light {
+    background-color: #e3f2fd !important;
+}
+
+.notification-item .badge {
+    font-size: 0.65rem;
+    padding: 0.25rem 0.5rem;
+}
+
+#notificationBadge {
+    font-size: 0.7rem;
+    min-width: 18px;
+    height: 18px;
+    line-height: 1;
+    padding: 0.25rem 0.4rem;
+    animation: notificationPulse 2s infinite;
+}
+
+@keyframes notificationPulse {
+    0% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.1);
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}
+
+.notification-item .bi-heart-fill {
+    color: #dc3545 !important;
+}
+
+.notification-item .bi-reply-fill {
+    color: #0d6efd !important;
+}
+
+.notification-item .bi-bell-fill {
+    color: #6c757d !important;
+}
+
+#markAllReadBtn {
+    font-size: 0.75rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 15px;
+}
+
+.notification-dropdown .text-muted {
+    padding: 1rem;
+    font-style: italic;
+}
+
+/* Reply styling */
+.reply-item {
+    transition: all 0.3s ease;
+    border-left: 3px solid #e9ecef !important;
+    background-color: #f8f9fa;
+    border-radius: 0 8px 8px 0;
+    padding: 0.75rem 1rem !important;
+    margin-bottom: 0.75rem !important;
+}
+
+.reply-item:hover {
+    border-left-color: var(--primary-color) !important;
+    background-color: #e3f2fd;
+    transform: translateX(2px);
+}
+
+.reply-item .text-muted {
+    font-size: 0.8rem;
+    margin-bottom: 0.5rem;
+}
+
+.reply-item p {
+    margin-bottom: 0;
+    line-height: 1.5;
+}
+
+.replies-container {
+    margin-top: 1rem;
+}
+
+.replies-container h6 {
+    color: var(--primary-color);
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.reply-form {
+    background-color: #f8f9fa;
+    padding: 1rem;
+    border-radius: 8px;
+    border-left: 4px solid var(--primary-color);
+    margin-top: 0.75rem;
+    transition: all 0.3s ease;
+}
+
+.reply-form:hover {
+    background-color: #e3f2fd;
+    border-left-color: #0056b3;
+}
+
+.reply-form textarea {
+    border-radius: 6px;
+    border: 1px solid #dee2e6;
+    transition: all 0.3s ease;
+}
+
+.reply-form textarea:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+}
+
+.reply-form .btn {
+    border-radius: 6px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.reply-form .btn-success {
+    background-color: var(--success-color);
+    border-color: var(--success-color);
+}
+
+.reply-form .btn-success:hover {
+    background-color: #157347;
+    border-color: #146c43;
+    transform: translateY(-1px);
+}
+
+.reply-form .btn-secondary {
+    background-color: var(--secondary-color);
+    border-color: var(--secondary-color);
+}
+
+.reply-form .btn-secondary:hover {
+    background-color: #5c636a;
+    border-color: #565e64;
+    transform: translateY(-1px);
+}
+
+/* ==============================================
+   RESPONSIVE DESIGN - Mobile First Approach
+   ============================================== */
+
+/* Extra small devices (phones, 576px and down) */
+@media (max-width: 575.98px) {
+    .hero-section {
+        padding: 2rem 0 !important;
+        border-radius: 0 !important;
+    }
+    
+    .hero-section h1.display-4 {
+        font-size: 2rem;
+        margin-bottom: 1rem;
+    }
+    
+    .hero-section .lead {
+        font-size: 1rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .hero-section .btn {
+        display: block;
+        width: 100%;
+        margin: 0.5rem 0;
+    }
+    
+    .navbar-brand {
+        font-size: 1.2rem;
+    }
+    
+    .card {
+        margin-bottom: 1rem;
+        border-radius: 8px;
+    }
+    
+    .notification-dropdown {
+        min-width: 250px !important;
+        max-width: 95vw;
+        left: auto !important;
+        right: 0 !important;
+    }
+    
+    .form-control, .btn {
+        font-size: 16px; /* Prevents zoom on iOS */
+    }
+}
+
+/* Small devices (landscape phones, 576px and up) */
+@media (min-width: 576px) and (max-width: 767.98px) {
+    .hero-section .btn {
+        display: inline-block;
+        width: auto;
+        margin: 0.25rem;
+    }
+    
+    .notification-dropdown {
+        min-width: 280px !important;
+        max-width: 90vw;
+    }
+}
+
+/* Medium devices (tablets, 768px and up) */
+@media (min-width: 768px) and (max-width: 991.98px) {
+    .hero-section {
+        padding: 3rem 0;
+    }
+    
+    .notification-dropdown {
+        min-width: 300px;
+    }
+}
+
+/* Large devices (desktops, 992px and up) */
+@media (min-width: 992px) {
+    .hero-section {
+        padding: 4rem 0;
+    }
+}
+
+/* Common mobile styles (768px and down) */
+@media (max-width: 768px) {
+    .notification-item {
+        padding: 0.5rem 0.75rem;
+    }
+
+    .notification-item .small {
+        font-size: 0.7rem;
+    }
+
+    .reply-item {
+        padding: 0.5rem 0.75rem !important;
+        margin-bottom: 0.5rem !important;
+    }
+
+    .reply-form {
+        padding: 0.75rem;
+    }
+    
+    /* Improve table responsiveness */
+    .table-responsive {
+        font-size: 0.875rem;
+    }
+    
+    /* Better spacing for mobile */
+    .container {
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }
+    
+    /* Stack buttons vertically on mobile */
+    .btn-group-vertical .btn {
+        margin-bottom: 0.5rem;
+    }
+}
