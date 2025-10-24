@@ -10,8 +10,8 @@
                 <div class="col-md-6 text-md-end">
                     <p>&copy; <?php echo date('Y'); ?> NicheNest. All rights reserved.</p>
                     <p>
-                        <a href="#" class="text-light text-decoration-none me-3">Privacy Policy</a>
-                        <a href="#" class="text-light text-decoration-none">Terms of Service</a>
+                        <a href="/pages/privacy.php" class="text-light text-decoration-none me-3">Privacy Policy</a>
+                        <a href="/pages/terms.php" class="text-light text-decoration-none">Terms of Service</a>
                     </p>
                 </div>
             </div>
