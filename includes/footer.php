@@ -18,7 +18,14 @@
         </div>
     </footer>
 
+    <!-- Professional toast notifications container -->
+    <div class="toast-container position-fixed bottom-0 start-0 p-4" style="z-index: 1060;">
+        <!-- Professional toasts will be inserted here dynamically -->
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Add Font Awesome for professional icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
     <!-- Custom JavaScript -->
     <script src="/public/js/script.js"></script>

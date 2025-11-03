@@ -41,7 +41,7 @@ document.addEventListener('DOMContentLoaded', function () {
                             this.classList.remove('liked');
                         }, 300);
 
-                        showAlert(data.message, 'success');
+                        showToast(data.message, 'success');
                     } else {
                         showAlert(data.message, 'danger');
                         this.innerHTML = originalHTML;
@@ -136,7 +136,7 @@ document.addEventListener('DOMContentLoaded', function () {
                         this.querySelector('textarea').value = '';
                         this.classList.add('d-none');
 
-                        showAlert(data.message, 'success');
+                        showToast(data.message, 'success');
                     } else {
                         showAlert(data.message, 'danger');
                     }
@@ -377,7 +377,155 @@ document.addEventListener('DOMContentLoaded', function () {
 
 });
 
+// Keep track of active toasts
+const activeToasts = new Set();
+const MAX_TOASTS = 3; // Maximum number of visible toasts
+
+function showToast(message, type = 'success') {
+    const toastContainer = document.querySelector('.toast-container');
+    if (!toastContainer) return;
+
+    // Remove oldest toast if we exceed max
+    if (activeToasts.size >= MAX_TOASTS) {
+        const oldestToast = toastContainer.firstChild;
+        if (oldestToast) {
+            hideToast(oldestToast);
+        }
+    }
+
+    const toastId = 'toast-' + Date.now();
+    const toast = document.createElement('div');
+    toast.className = 'toast show';
+    toast.id = toastId;
+    toast.setAttribute('role', 'alert');
+    toast.setAttribute('aria-live', 'polite');
+    toast.setAttribute('aria-atomic', 'true');
+    
+    // Enhanced professional styling
+    toast.style.minWidth = '300px';
+    toast.style.opacity = '0';
+    toast.style.transform = 'translateX(-100%)';
+    toast.style.transition = 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)';
+    toast.style.backgroundColor = '#fff';
+    toast.style.border = 'none';
+    toast.style.boxShadow = '0 0.5rem 1rem rgba(0, 0, 0, 0.15)';
+    toast.style.borderRadius = '0.5rem';
+    toast.style.marginBottom = '0.75rem';
+    toast.style.position = 'relative';
+    toast.style.overflow = 'hidden';
+    
+    let icon, color;
+    switch(type) {
+        case 'success':
+            icon = 'fa-circle-check';
+            color = '#28a745';
+            break;
+        case 'error':
+            icon = 'fa-circle-xmark';
+            color = '#dc3545';
+            break;
+        case 'warning':
+            icon = 'fa-triangle-exclamation';
+            color = '#ffc107';
+            break;
+        case 'info':
+        default:
+            icon = 'fa-circle-info';
+            color = '#17a2b8';
+            break;
+    }
+
+    toast.innerHTML = `
+        <div class="toast-body d-flex align-items-center py-3 px-4">
+            <i class="fas ${icon} me-3" style="color: ${color}; font-size: 1.2rem;"></i>
+            <div class="flex-grow-1" style="font-size: 0.95rem;">
+                ${message}
+            </div>
+            <button type="button" class="btn-close ms-3" data-bs-dismiss="toast" aria-label="Close" 
+                style="font-size: 0.8rem; opacity: 0.5; transition: opacity 0.2s;"
+                onmouseover="this.style.opacity='1'" 
+                onmouseout="this.style.opacity='0.5'">
+            </button>
+        </div>
+    `;
+
+    // Add progress bar for visual feedback
+    const progressBar = document.createElement('div');
+    progressBar.style.position = 'absolute';
+    progressBar.style.bottom = '0';
+    progressBar.style.left = '0';
+    progressBar.style.height = '3px';
+    progressBar.style.backgroundColor = type === 'success' ? '#28a745' : 
+                                     type === 'error' ? '#dc3545' :
+                                     type === 'warning' ? '#ffc107' : '#17a2b8';
+    progressBar.style.width = '100%';
+    progressBar.style.transition = 'width 4s linear';
+    toast.appendChild(progressBar);
+
+    // Insert at the beginning of container
+    toastContainer.insertBefore(toast, toastContainer.firstChild);
+    activeToasts.add(toast);
+
+    // Trigger entrance animation with slight delay
+    setTimeout(() => {
+        toast.style.opacity = '1';
+        toast.style.transform = 'translateX(0)';
+        progressBar.style.width = '0';
+    }, 50);
+
+    const hideDelay = 4000;
+    let hideTimeout = setTimeout(() => {
+        hideToast(toast);
+    }, hideDelay);
+
+    // Pause animations and timer on hover
+    toast.addEventListener('mouseenter', () => {
+        clearTimeout(hideTimeout);
+        progressBar.style.transition = 'none';
+        const remainingWidth = progressBar.offsetWidth;
+        progressBar.style.width = remainingWidth + 'px';
+    });
+
+    // Resume animations and timer on mouse leave
+    toast.addEventListener('mouseleave', () => {
+        const remainingWidth = (progressBar.offsetWidth / progressBar.parentElement.offsetWidth) * 100;
+        const remainingTime = (hideDelay * remainingWidth) / 100;
+        
+        progressBar.style.transition = `width ${remainingTime}ms linear`;
+        progressBar.style.width = '0';
+        
+        hideTimeout = setTimeout(() => {
+            hideToast(toast);
+        }, remainingTime);
+    });
+
+    // Handle close button click
+    toast.querySelector('.btn-close').addEventListener('click', () => {
+        clearTimeout(hideTimeout);
+        hideToast(toast);
+    });
+}
+
+// Helper function to hide toast with animation
+function hideToast(toast) {
+    activeToasts.delete(toast);
+    
+    // Animate out
+    toast.style.opacity = '0';
+    toast.style.transform = 'translateX(-100%)';
+    
+    // Remove from DOM after animation
+    setTimeout(() => {
+        if (toast.parentNode) {
+            toast.remove();
+        }
+    }, 400);
+}
+
 function showAlert(message, type) {
+    // Call both toast and alert for now (toast for new actions, alert for backward compatibility)
+    showToast(message, type);
+    
     if (typeof type === 'undefined') {
         type = 'info';
     }
