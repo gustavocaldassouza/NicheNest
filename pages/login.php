@@ -28,7 +28,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         if ($user && verifyPassword($password, $user['password'])) {
             loginUser($user['id']);
-            setFlashMessage('Welcome back, ' . htmlspecialchars($user['username']) . '!', 'success');
+            
+            // Show appropriate welcome message based on whether this is their first login
+            if (isset($_SESSION['is_first_login']) && $_SESSION['is_first_login']) {
+                setFlashMessage('Welcome to NicheNest, ' . htmlspecialchars($user['username']) . '!', 'success');
+                unset($_SESSION['is_first_login']); // Clear the flag after use
+            } else {
+                setFlashMessage('Welcome back, ' . htmlspecialchars($user['username']) . '!', 'success');
+            }
             redirect('/');
         } else {
             // Log failed login attempt

@@ -37,11 +37,20 @@ function loginUser($userId)
     $_SESSION['user_id'] = $userId;
     $_SESSION['login_time'] = time();
     
-    // Log successful login
+    // Log successful login and update last_login
     global $pdo;
-    $stmt = $pdo->prepare("SELECT username FROM users WHERE id = ?");
+    
+    // Get current user info and last login time
+    $stmt = $pdo->prepare("SELECT username, last_login FROM users WHERE id = ?");
     $stmt->execute([$userId]);
     $user = $stmt->fetch();
+    
+    // Store if this is first login in session
+    $_SESSION['is_first_login'] = ($user && $user['last_login'] === null);
+    
+    // Update last_login timestamp
+    $stmt = $pdo->prepare("UPDATE users SET last_login = CURRENT_TIMESTAMP WHERE id = ?");
+    $stmt->execute([$userId]);
     
     if ($user) {
         Logger::logAuth('login', $user['username'], true);
