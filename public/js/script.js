@@ -907,14 +907,21 @@ function checkUsernameAvailability(username, inputElement) {
     })
     .then(response => response.json())
     .then(data => {
-        if (data.available) {
-            showUsernameFeedback(inputElement, 'Username available!', 'success');
+        if (data.success) {
+            if (data.available) {
+                showUsernameFeedback(inputElement, '✓ Username available!', 'success');
+            } else {
+                showUsernameFeedback(inputElement, '✗ Username already taken', 'danger');
+            }
         } else {
-            showUsernameFeedback(inputElement, 'Username already taken', 'danger');
+            // Show error message from server if available, else generic error
+            const errorMsg = data.message ? data.message : 'Error checking username';
+            showUsernameFeedback(inputElement, errorMsg, 'danger');
         }
     })
     .catch(error => {
         console.error('Error checking username:', error);
+        showUsernameFeedback(inputElement, 'Error checking username', 'danger');
         showUsernameFeedback(inputElement, 'Could not check availability. Please try again.', 'warning');
     });
 }
