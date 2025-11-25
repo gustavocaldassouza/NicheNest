@@ -819,3 +819,109 @@ function enhanceLikeButton(button) {
 
 // Apply enhancements to all like buttons
 document.querySelectorAll('.like-btn').forEach(enhanceLikeButton);
+
+// Username validation with real-time feedback
+document.addEventListener('DOMContentLoaded', function() {
+    const usernameInput = document.getElementById('username');
+    
+    if (usernameInput && !usernameInput.disabled) {
+        let timeoutId;
+        const originalUsername = usernameInput.value; // For profile edit
+        
+        usernameInput.addEventListener('input', function() {
+            clearTimeout(timeoutId);
+            const username = this.value.trim();
+            
+            // Remove any existing feedback
+            let feedbackDiv = this.parentElement.querySelector('.username-feedback');
+            if (feedbackDiv) {
+                feedbackDiv.remove();
+            }
+            
+            // Basic validation
+            if (username.length === 0) {
+                return;
+            }
+            
+            if (username.length < 3) {
+                showUsernameFeedback(this, 'Username must be at least 3 characters', 'warning');
+                return;
+            }
+
+            if (username.length > 50) {
+                showUsernameFeedback(this, 'Username cannot exceed 50 characters', 'danger');
+                return;
+            }
+
+            if (!/^[a-zA-Z0-9_]{3,50}$/.test(username)) {
+                showUsernameFeedback(this, 'Only letters, numbers, and underscores allowed (3-50 characters)', 'danger');
+                return;
+            }
+            
+            // Skip check if it's the same as original (for profile edit)
+            if (username === originalUsername) {
+                showUsernameFeedback(this, 'Current username', 'info');
+                return;
+            }
+            
+            // Check availability after 500ms delay
+            timeoutId = setTimeout(() => {
+                checkUsernameAvailability(username, this);
+            }, 500);
+        });
+    }
+});
+
+function showUsernameFeedback(inputElement, message, type) {
+    let feedbackDiv = inputElement.parentElement.querySelector('.username-feedback');
+    
+    if (!feedbackDiv) {
+        feedbackDiv = document.createElement('div');
+        feedbackDiv.className = 'username-feedback form-text';
+        feedbackDiv.setAttribute('role', 'status');
+        feedbackDiv.setAttribute('aria-live', 'polite');
+        inputElement.parentElement.appendChild(feedbackDiv);
+    }
+    
+    const icons = {
+        'success': 'bi-check-circle-fill',
+        'danger': 'bi-x-circle-fill',
+        'warning': 'bi-exclamation-triangle-fill',
+        'info': 'bi-info-circle-fill'
+    };
+    
+    feedbackDiv.className = `username-feedback form-text text-${type}`;
+    feedbackDiv.innerHTML = `<i class="bi ${icons[type]}"></i> ${message}`;
+}
+
+function checkUsernameAvailability(username, inputElement) {
+    // Show checking status
+    showUsernameFeedback(inputElement, 'Checking availability...', 'info');
+    
+    const formData = new FormData();
+    formData.append('username', username);
+    
+    fetch('/ajax/check_username.php', {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            if (data.available) {
+                showUsernameFeedback(inputElement, '✓ Username available!', 'success');
+            } else {
+                showUsernameFeedback(inputElement, '✗ Username already taken', 'danger');
+            }
+        } else {
+            // Show error message from server if available, else generic error
+            const errorMsg = data.message ? data.message : 'Error checking username';
+            showUsernameFeedback(inputElement, errorMsg, 'danger');
+        }
+    })
+    .catch(error => {
+        console.error('Error checking username:', error);
+        showUsernameFeedback(inputElement, 'Error checking username', 'danger');
+        showUsernameFeedback(inputElement, 'Could not check availability. Please try again.', 'warning');
+    });
+}
