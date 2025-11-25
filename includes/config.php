@@ -16,8 +16,8 @@ if (getenv('JAWSDB_URL')) {
     // Local development defaults
     define('DB_HOST', getenv('DB_HOST') ?: '127.0.0.1');
     define('DB_NAME', getenv('DB_NAME') ?: 'nichenest');
-    define('DB_USER', getenv('DB_USER') ?: 'root');
-    define('DB_PASS', getenv('DB_PASS') ?: '');
+    define('DB_USER', getenv('DB_USER') ?: 'nichenest');
+    define('DB_PASS', getenv('DB_PASS') ?: 'nichenest123');
 }
 
 define('APP_NAME', getenv('APP_NAME') ?: 'NicheNest');
