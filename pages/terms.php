@@ -8,9 +8,9 @@ $page_title = "Terms of Service - NicheNest";
 include '../includes/header.php';
 ?>
 
-<main class="container py-5">
+<main id="main-content" role="main" class="container py-5">
     <h1>Terms of Service</h1>
-    <p>Welcome to <?= htmlspecialchars('NicheNest') ?>. By using our platform, you agree to comply with and be bound by these terms.</p>
+    <p>Welcome to NicheNest. By using our platform, you agree to comply with and be bound by these terms.</p>
 
     <h2>User Responsibilities</h2>
     <p>You agree to use the platform respectfully and lawfully, refraining from posting harmful or illegal content.</p>

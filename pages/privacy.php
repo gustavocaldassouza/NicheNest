@@ -8,9 +8,9 @@ $page_title = "Privacy Policy - NicheNest";
 include '../includes/header.php';
 ?>
 
-<main class="container py-5">
+<main id="main-content" role="main" class="container py-5">
     <h1>Privacy Policy</h1>
-    <p>At <?= htmlspecialchars('NicheNest') ?>, we prioritize your privacy and are committed to protecting your personal information in accordance with applicable laws such as GDPR and CCPA.</p>
+    <p>At NicheNest, we prioritize your privacy and are committed to protecting your personal information in accordance with applicable laws such as GDPR and CCPA.</p>
 
     <h2>Information Collection</h2>
     <p>We collect personal data including username, email, and profile details when you register. We also record usage data such as login/logout events, posts, and interactions for moderation and audit purposes.</p>
@@ -31,7 +31,7 @@ include '../includes/header.php';
     <p>We use cookies for session management and analytics. You can disable cookies in your browser settings but some features may be affected.</p>
 
     <h2>Changes to Policy</h2>
-    <p>This policy may be updated occasionally. The revision date is shown here: <?= date('F j, Y') ?>.</p>
+    <p>This policy may be updated occasionally. The revision date is shown here: January 15, 2024.</p>
 
 </main>
 
