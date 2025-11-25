@@ -847,9 +847,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 showUsernameFeedback(this, 'Username must be at least 3 characters', 'warning');
                 return;
             }
-            
-            if (!/^[a-zA-Z0-9_]+$/.test(username)) {
-                showUsernameFeedback(this, 'Only letters, numbers, and underscores allowed', 'danger');
+
+            if (username.length > 50) {
+                showUsernameFeedback(this, 'Username cannot exceed 50 characters', 'danger');
+                return;
+            }
+
+            if (!/^[a-zA-Z0-9_]{3,50}$/.test(username)) {
+                showUsernameFeedback(this, 'Only letters, numbers, and underscores allowed (3-50 characters)', 'danger');
                 return;
             }
             
@@ -873,6 +878,8 @@ function showUsernameFeedback(inputElement, message, type) {
     if (!feedbackDiv) {
         feedbackDiv = document.createElement('div');
         feedbackDiv.className = 'username-feedback form-text';
+        feedbackDiv.setAttribute('role', 'status');
+        feedbackDiv.setAttribute('aria-live', 'polite');
         inputElement.parentElement.appendChild(feedbackDiv);
     }
     
@@ -901,12 +908,13 @@ function checkUsernameAvailability(username, inputElement) {
     .then(response => response.json())
     .then(data => {
         if (data.available) {
-            showUsernameFeedback(inputElement, '✓ Username available!', 'success');
+            showUsernameFeedback(inputElement, 'Username available!', 'success');
         } else {
-            showUsernameFeedback(inputElement, '✗ Username already taken', 'danger');
+            showUsernameFeedback(inputElement, 'Username already taken', 'danger');
         }
     })
     .catch(error => {
         console.error('Error checking username:', error);
+        showUsernameFeedback(inputElement, 'Could not check availability. Please try again.', 'warning');
     });
 }
