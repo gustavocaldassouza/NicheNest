@@ -21,7 +21,7 @@
         <p>Maintain confidentiality of your login credentials. Notify us immediately of unauthorized access.</p>
 
         <h2>Content Moderation</h2>
-        <p>Admins have the right to flag, remove content, suspend accounts violating these terms.</p>
+        <p>Admins have the right to flag, remove content, or suspend accounts violating these terms.</p>
 
         <h2>Limitation of Liability</h2>
         <p>The platform is provided “as is” without warranties. We are not liable for user-generated content.</p>
