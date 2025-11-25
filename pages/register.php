@@ -20,6 +20,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $errors[] = 'Username is required';
     } elseif (strlen($username) < 3) {
         $errors[] = 'Username must be at least 3 characters';
+    } elseif (strlen($username) > 50) {
+        $errors[] = 'Username must be 50 characters or less';
     } elseif (!preg_match('/^[a-zA-Z0-9_]+$/', $username)) {
         $errors[] = 'Username can only contain letters, numbers, and underscores';
     }
@@ -107,8 +109,8 @@ include '../includes/header.php';
                                 <label for="username" class="form-label">Username</label>
                                 <input type="text" class="form-control" id="username" name="username"
                                     value="<?php echo htmlspecialchars($_POST['username'] ?? ''); ?>" 
-                                    pattern="[a-zA-Z0-9_]+" 
-                                    title="Username can only contain letters, numbers, and underscores"
+                                    pattern="[a-zA-Z0-9_]{3,}" 
+                                    title="Username can only contain letters, numbers, and underscores (minimum 3 characters)"
                                     required>
                                 <div class="form-text">Must be unique, at least 3 characters</div>
                             </div>
