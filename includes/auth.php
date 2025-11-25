@@ -27,7 +27,7 @@ function getCurrentUser()
     }
 
     global $pdo;
-    $stmt = $pdo->prepare("SELECT id, username, email, display_name, avatar, created_at FROM users WHERE id = ?");
+    $stmt = $pdo->prepare("SELECT id, username, email, display_name, bio, avatar, role, status, created_at FROM users WHERE id = ?");
     $stmt->execute([getCurrentUserId()]);
     return $stmt->fetch();
 }

@@ -12,8 +12,9 @@ $success = '';
 
 // Handle profile updates
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $display_name = sanitizeInput($_POST['display_name']);
-    $bio = sanitizeInput($_POST['bio']);
+    $username = sanitizeInput($_POST['username'] ?? '');
+    $display_name = sanitizeInput($_POST['display_name'] ?? '');
+    $bio = sanitizeInput($_POST['bio'] ?? '');
 
     // Handle avatar upload using the helper function
     $avatarResult = null;
@@ -27,6 +28,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $current_password = $_POST['current_password'] ?? '';
     $new_password = $_POST['new_password'] ?? '';
     $confirm_password = $_POST['confirm_password'] ?? '';
+
+    // Validate username
+    if (empty($username)) {
+        $errors[] = 'Username is required';
+    } elseif (strlen($username) < 3) {
+        $errors[] = 'Username must be at least 3 characters';
+    } elseif (!preg_match('/^[a-zA-Z0-9_]+$/', $username)) {
+        $errors[] = 'Username can only contain letters, numbers, and underscores';
+    } elseif ($username !== $user['username']) {
+        // Check if username is already taken by another user
+        $stmt = $pdo->prepare("SELECT id FROM users WHERE username = ? AND id != ?");
+        $stmt->execute([$username, getCurrentUserId()]);
+        if ($stmt->fetch()) {
+            $errors[] = 'Username already taken. Please choose another one.';
+        }
+    }
 
     if (empty($display_name)) {
         $errors[] = 'Display name is required';
@@ -52,15 +69,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (empty($errors)) {
         try {
+            // Log para debug
+            Logger::debug("Updating profile", [
+                'user_id' => getCurrentUserId(),
+                'username' => $username,
+                'display_name' => $display_name,
+                'bio' => $bio,
+                'bio_length' => strlen($bio)
+            ]);
+            
             if (!empty($new_password)) {
-                $stmt = $pdo->prepare("UPDATE users SET display_name = ?, bio = ?, password = ? WHERE id = ?");
-                $stmt->execute([$display_name, $bio, hashPassword($new_password), getCurrentUserId()]);
+                $stmt = $pdo->prepare("UPDATE users SET username = ?, display_name = ?, bio = ?, password = ? WHERE id = ?");
+                $stmt->execute([$username, $display_name, $bio, hashPassword($new_password), getCurrentUserId()]);
                 $success = 'Profile and password updated successfully!';
             } else {
-                $stmt = $pdo->prepare("UPDATE users SET display_name = ?, bio = ? WHERE id = ?");
-                $stmt->execute([$display_name, $bio, getCurrentUserId()]);
+                $stmt = $pdo->prepare("UPDATE users SET username = ?, display_name = ?, bio = ? WHERE id = ?");
+                $stmt->execute([$username, $display_name, $bio, getCurrentUserId()]);
                 $success = 'Profile updated successfully!';
             }
+
+            // Log success
+            Logger::info("Profile updated successfully", [
+                'user_id' => getCurrentUserId(),
+                'username' => $username
+            ]);
 
             // Add avatar upload success message
             if ($avatarResult && $avatarResult['success']) {
@@ -70,6 +102,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // Refresh user data
             $user = getCurrentUser();
         } catch (PDOException $e) {
+            Logger::error("Profile update failed", [
+                'error' => $e->getMessage(),
+                'user_id' => getCurrentUserId()
+            ]);
             $errors[] = 'Failed to update profile. Please try again.';
         }
     }
@@ -111,9 +147,12 @@ include '../includes/header.php';
                             <div class="col-md-6">
                                 <div class="mb-3">
                                     <label for="username" class="form-label">Username</label>
-                                    <input type="text" class="form-control" id="username"
-                                        value="<?php echo htmlspecialchars($user['username']); ?>" disabled>
-                                    <div class="form-text">Username cannot be changed</div>
+                                    <input type="text" class="form-control" id="username" name="username"
+                                        value="<?php echo htmlspecialchars($_POST['username'] ?? $user['username']); ?>" 
+                                        pattern="[a-zA-Z0-9_]+" 
+                                        title="Username can only contain letters, numbers, and underscores"
+                                        required>
+                                    <div class="form-text">Must be unique, like Instagram</div>
                                 </div>
                             </div>
                             <div class="col-md-6">
