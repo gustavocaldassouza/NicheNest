@@ -1,6 +1,7 @@
 document.addEventListener('DOMContentLoaded', function () {
     initializeAccessibility();
     initializeNotifications();
+    checkForSuccessMessages();
 
     const likeButtons = document.querySelectorAll('.like-btn');
 
@@ -382,23 +383,99 @@ function showAlert(message, type) {
         type = 'info';
     }
     
-    const alertContainer = document.createElement('div');
-    alertContainer.className = 'alert alert-' + type + ' alert-dismissible fade show';
-    alertContainer.setAttribute('role', 'alert');
-    alertContainer.innerHTML = message + '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>';
+    showToast(message, type);
+}
 
-    const container = document.querySelector('.container');
-    if (container) {
-        container.insertBefore(alertContainer, container.firstChild);
+function showToast(message, type, duration) {
+    if (typeof type === 'undefined') {
+        type = 'info';
+    }
+    if (typeof duration === 'undefined') {
+        duration = 4000;
+    }
+    
+    // Create toast container if it doesn't exist
+    let toastContainer = document.getElementById('toast-container');
+    if (!toastContainer) {
+        toastContainer = document.createElement('div');
+        toastContainer.id = 'toast-container';
+        toastContainer.className = 'toast-container';
+        toastContainer.setAttribute('aria-live', 'polite');
+        toastContainer.setAttribute('aria-atomic', 'true');
+        document.body.appendChild(toastContainer);
+    }
+    
+    // Define icons for each type
+    const icons = {
+        'success': 'bi-check-circle-fill',
+        'danger': 'bi-x-circle-fill',
+        'warning': 'bi-exclamation-triangle-fill',
+        'info': 'bi-info-circle-fill'
+    };
+    
+    // Create toast element
+    const toast = document.createElement('div');
+    toast.className = `toast-notification toast-${type}`;
+    toast.setAttribute('role', 'alert');
+    toast.innerHTML = `
+        <i class="bi ${icons[type] || icons['info']} toast-icon"></i>
+        <span class="toast-message">${message}</span>
+        <button type="button" class="toast-close" aria-label="Close">
+            <i class="bi bi-x"></i>
+        </button>
+    `;
+    
+    // Add to container
+    toastContainer.appendChild(toast);
+    
+    // Close button functionality
+    const closeBtn = toast.querySelector('.toast-close');
+    closeBtn.addEventListener('click', function() {
+        hideToast(toast);
+    });
+    
+    // Auto-hide after duration
+    setTimeout(function() {
+        hideToast(toast);
+    }, duration);
+    
+    // Announce to screen readers
+    announceToScreenReader(message);
+}
 
+function hideToast(toast) {
+    if (toast && !toast.classList.contains('toast-hiding')) {
+        toast.classList.add('toast-hiding');
         setTimeout(function() {
-            if (typeof bootstrap !== 'undefined' && bootstrap.Alert) {
-                const bsAlert = new bootstrap.Alert(alertContainer);
-                bsAlert.close();
-            } else {
-                alertContainer.remove();
+            if (toast.parentNode) {
+                toast.parentNode.removeChild(toast);
             }
-        }, 5000);
+        }, 300);
+    }
+}
+
+function checkForSuccessMessages() {
+    // Check URL for success parameter (e.g., after creating a post)
+    const urlParams = new URLSearchParams(window.location.search);
+    
+    if (urlParams.get('success') === '1') {
+        // Determine context based on current page
+        const currentPath = window.location.pathname;
+        let message = 'Action completed successfully!';
+        
+        if (currentPath.includes('posts.php')) {
+            message = 'Post created successfully!';
+        } else if (currentPath.includes('group_view.php')) {
+            message = 'Post created successfully!';
+        } else if (currentPath.includes('profile.php')) {
+            message = 'Profile updated successfully!';
+        }
+        
+        showToast(message, 'success');
+        
+        // Remove the success parameter from URL without refreshing
+        const newUrl = window.location.pathname + window.location.hash;
+        window.history.replaceState({}, document.title, newUrl);
     }
 }
 
@@ -694,30 +771,10 @@ function setupAriaLiveRegions() {
         document.body.appendChild(alertContainer);
     }
 
-    // Override the existing showAlert function to use ARIA live regions
+    // Override the existing showAlert function to use toast notifications
     window.showAlert = function (message, type = 'info') {
-        // Visual alert (existing functionality)
-        const alertHtml = `
-            <div class="alert alert-${type} alert-dismissible fade show" role="alert">
-                ${message}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close alert"></button>
-            </div>
-        `;
-
-        const container = document.querySelector('.container');
-        if (container) {
-            const tempDiv = document.createElement('div');
-            tempDiv.innerHTML = alertHtml;
-            container.insertBefore(tempDiv.firstElementChild, container.firstElementChild);
-        }
-
-        // Announce to screen readers
-        alertContainer.textContent = message;
-
-        // Clear the announcement after a delay
-        setTimeout(() => {
-            alertContainer.textContent = '';
-        }, 5000);
+        // Use toast notification system
+        showToast(message, type);
     };
 }
 
