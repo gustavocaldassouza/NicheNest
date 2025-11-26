@@ -21,14 +21,16 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 
 $postId = isset($_POST['post_id']) ? (int)$_POST['post_id'] : 0;
 $currentUserId = getCurrentUserId();
+$isAdminUser = isAdmin();
+$reason = isset($_POST['reason']) ? sanitizeInput($_POST['reason']) : null;
 
 if (!$postId) {
     echo json_encode(['success' => false, 'message' => 'Invalid post ID']);
     exit;
 }
 
-// Verify ownership
-if (!isPostOwner($postId, $currentUserId)) {
+// Verify ownership OR admin privileges
+if (!isPostOwner($postId, $currentUserId) && !$isAdminUser) {
     echo json_encode(['success' => false, 'message' => 'You do not have permission to delete this post']);
     exit;
 }
@@ -54,6 +56,21 @@ try {
     $stmt->execute([$postId]);
 
     $pdo->commit();
+
+    // Log moderation action if admin deleted someone else's post
+    if ($isAdminUser && !isPostOwner($postId, $currentUserId)) {
+        $stmt = $pdo->prepare("INSERT INTO moderation_logs (moderator_id, action, target_type, target_id, reason) VALUES (?, 'delete_post', 'post', ?, ?)");
+        $stmt->execute([$currentUserId, $postId, $reason]);
+
+        // Also log to file
+        $stmt = $pdo->prepare("SELECT username FROM users WHERE id = ?");
+        $stmt->execute([$currentUserId]);
+        $moderator = $stmt->fetch();
+
+        if ($moderator) {
+            Logger::logModeration('delete_post', $moderator['username'], 'post', $postId, $reason);
+        }
+    }
 
     echo json_encode([
         'success' => true,
