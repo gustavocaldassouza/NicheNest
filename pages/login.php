@@ -28,7 +28,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         if ($user && verifyPassword($password, $user['password'])) {
             loginUser($user['id']);
-            setFlashMessage('Welcome back, ' . htmlspecialchars($user['username']) . '!', 'success');
+            // if the user has just registered, show a welcome message instead of "Welcome back"
+            if (!empty($_SESSION['just_registered'])) {
+                setFlashMessage('Welcome, ' . htmlspecialchars($user['username']) . '! Your account has been created.', 'success');
+                unset($_SESSION['just_registered']);
+            } else {
+                setFlashMessage('Welcome back, ' . htmlspecialchars($user['username']) . '!', 'success');
+            }
             redirect('/');
         } else {
             // Log failed login attempt

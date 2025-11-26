@@ -68,6 +68,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 'email' => $email
             ]);
 
+            // mark session so the subsequent first login shows a welcome (not "Welcome back")
+            $_SESSION['just_registered'] = true;
             setFlashMessage('Registration successful! Please log in.', 'success');
             redirect('login.php');
         } catch (PDOException $e) {
