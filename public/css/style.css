@@ -81,6 +81,49 @@ footer {
 * {
     box-sizing: border-box;
 }
+
+/* ==============================================
+   CONTAINER & LAYOUT SPACING
+   ============================================== */
+
+/* Ensure containers have proper padding */
+.container,
+.container-fluid,
+.container-lg,
+.container-md,
+.container-sm,
+.container-xl,
+.container-xxl {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+}
+
+/* Navbar container should have consistent spacing */
+.navbar .container {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+}
+
+/* Main content area spacing */
+main .container {
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+}
+
+/* Larger screens can have more padding */
+@media (min-width: 992px) {
+    .container,
+    .container-fluid,
+    .container-lg,
+    .container-md,
+    .container-sm,
+    .container-xl,
+    .container-xxl {
+        padding-left: 2rem;
+        padding-right: 2rem;
+    }
+}
+
 /* ==============================================
    COMPONENT STYLES - Enhanced for Accessibility
    ============================================== */
@@ -1332,5 +1375,131 @@ p, li, span, div {
     .mx-auto-mobile {
         margin-left: auto !important;
         margin-right: auto !important;
+    }
+}
+
+/* ==============================================
+   TOAST NOTIFICATIONS - Bottom Left
+   ============================================== */
+
+.toast-container {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column-reverse;
+    gap: 10px;
+    max-width: 350px;
+    pointer-events: none;
+}
+
+.toast-notification {
+    display: flex;
+    align-items: center;
+    padding: 14px 18px;
+    border-radius: 10px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    font-size: 0.95rem;
+    font-weight: 500;
+    animation: toastSlideIn 0.3s ease-out;
+    pointer-events: auto;
+    min-width: 250px;
+    max-width: 350px;
+    backdrop-filter: blur(10px);
+}
+
+.toast-notification.toast-success {
+    background-color: rgba(25, 135, 84, 0.95);
+    color: #ffffff;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.toast-notification.toast-danger {
+    background-color: rgba(220, 53, 69, 0.95);
+    color: #ffffff;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.toast-notification.toast-warning {
+    background-color: rgba(255, 193, 7, 0.95);
+    color: #000000;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.toast-notification.toast-info {
+    background-color: rgba(13, 110, 253, 0.95);
+    color: #ffffff;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.toast-notification .toast-icon {
+    margin-right: 12px;
+    font-size: 1.2rem;
+    flex-shrink: 0;
+}
+
+.toast-notification .toast-message {
+    flex: 1;
+    line-height: 1.4;
+    padding-right: 8px;
+}
+
+.toast-notification .toast-close {
+    background: none;
+    border: none;
+    color: inherit;
+    opacity: 0.7;
+    cursor: pointer;
+    padding: 4px;
+    margin-left: 8px;
+    font-size: 1.1rem;
+    transition: opacity 0.2s ease;
+    flex-shrink: 0;
+}
+
+.toast-notification .toast-close:hover {
+    opacity: 1;
+}
+
+@keyframes toastSlideIn {
+    from {
+        transform: translateX(-100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes toastSlideOut {
+    from {
+        transform: translateX(0);
+        opacity: 1;
+    }
+    to {
+        transform: translateX(-100%);
+        opacity: 0;
+    }
+}
+
+.toast-notification.toast-hiding {
+    animation: toastSlideOut 0.3s ease-in forwards;
+}
+
+/* Responsive toast adjustments */
+@media (max-width: 575.98px) {
+    .toast-container {
+        left: 10px;
+        right: 10px;
+        bottom: 10px;
+        max-width: none;
+    }
+    
+    .toast-notification {
+        min-width: auto;
+        max-width: none;
+        width: 100%;
     }
 }
