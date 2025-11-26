@@ -61,12 +61,12 @@ try {
     if ($isAdminUser && !isPostOwner($postId, $currentUserId)) {
         $stmt = $pdo->prepare("INSERT INTO moderation_logs (moderator_id, action, target_type, target_id, reason) VALUES (?, 'delete_post', 'post', ?, ?)");
         $stmt->execute([$currentUserId, $postId, $reason]);
-        
+
         // Also log to file
         $stmt = $pdo->prepare("SELECT username FROM users WHERE id = ?");
         $stmt->execute([$currentUserId]);
         $moderator = $stmt->fetch();
-        
+
         if ($moderator) {
             Logger::logModeration('delete_post', $moderator['username'], 'post', $postId, $reason);
         }

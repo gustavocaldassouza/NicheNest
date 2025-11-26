@@ -9,21 +9,22 @@ requireAdmin();
 $message = '';
 
 // Function to log moderation actions
-function logModerationAction($pdo, $action, $target_type, $target_id, $reason = null) {
+function logModerationAction($pdo, $action, $target_type, $target_id, $reason = null)
+{
     $moderator_id = getCurrentUserId();
     if (!$moderator_id) {
         return false; // Cannot log without valid moderator ID
     }
-    
+
     // Get moderator username for logging
     $stmt = $pdo->prepare("SELECT username FROM users WHERE id = ?");
     $stmt->execute([$moderator_id]);
     $moderator = $stmt->fetch();
-    
+
     // Log to database and file - both should succeed or we note the failure
     $dbSuccess = false;
     $fileSuccess = false;
-    
+
     try {
         $stmt = $pdo->prepare("INSERT INTO moderation_logs (moderator_id, action, target_type, target_id, reason) VALUES (?, ?, ?, ?, ?)");
         $dbSuccess = $stmt->execute([$moderator_id, $action, $target_type, $target_id, $reason]);
@@ -35,7 +36,7 @@ function logModerationAction($pdo, $action, $target_type, $target_id, $reason = 
             'target_id' => $target_id
         ]);
     }
-    
+
     // Always attempt file logging
     if ($moderator) {
         try {
@@ -45,7 +46,7 @@ function logModerationAction($pdo, $action, $target_type, $target_id, $reason = 
             // File logging failed - at least we have database log
         }
     }
-    
+
     return $dbSuccess || $fileSuccess; // Success if either method worked
 }
 
@@ -63,11 +64,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } else {
             $stmt = $pdo->prepare("UPDATE users SET status = ? WHERE id = ?");
             $stmt->execute([$new_status, $user_id]);
-            
+
             // Log the moderation action
             $action = $new_status === 'suspended' ? 'suspend_user' : 'activate_user';
             logModerationAction($pdo, $action, 'user', $user_id);
-            
+
             $message = "User status updated successfully.";
         }
     }
@@ -86,10 +87,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             $stmt = $pdo->prepare("DELETE FROM posts WHERE id = ?");
             $stmt->execute([$post_id]);
-            
+
             // Log the moderation action
             logModerationAction($pdo, 'delete_post', 'post', $post_id);
-            
+
             $message = "Post and its replies deleted successfully.";
         }
     }
@@ -107,11 +108,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } else {
             $stmt = $pdo->prepare("UPDATE posts SET flagged = ? WHERE id = ?");
             $stmt->execute([$new_flag, $post_id]);
-            
+
             // Log the moderation action
             $action = $new_flag === 1 ? 'flag_post' : 'unflag_post';
             logModerationAction($pdo, $action, 'post', $post_id);
-            
+
             $message = $new_flag === 1 ? "Post flagged successfully." : "Post unflagged successfully.";
         }
     }

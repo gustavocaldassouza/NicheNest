@@ -310,9 +310,9 @@ include '../includes/header.php';
                                             </button>
                                         <?php endif; ?>
                                         <?php if ($isAdminUser && !isPostOwner($post['id'], $currentUserId)): ?>
-                                            <button type="button" 
-                                                class="btn btn-sm btn-<?php echo $post['flagged'] ? 'secondary' : 'warning'; ?> admin-flag-btn" 
-                                                data-post-id="<?php echo $post['id']; ?>" 
+                                            <button type="button"
+                                                class="btn btn-sm btn-<?php echo $post['flagged'] ? 'secondary' : 'warning'; ?> admin-flag-btn"
+                                                data-post-id="<?php echo $post['id']; ?>"
                                                 data-flagged="<?php echo $post['flagged'] ? 'true' : 'false'; ?>"
                                                 title="<?php echo $post['flagged'] ? 'Unflag post' : 'Flag post for review'; ?>">
                                                 <i class="bi bi-flag<?php echo $post['flagged'] ? '-fill' : ''; ?>"></i>

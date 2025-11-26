@@ -1,4 +1,5 @@
 <?php
+
 /**
  * AJAX endpoint for admin to flag/unflag posts
  */
@@ -50,7 +51,7 @@ try {
     }
 
     $new_flag = $post['flagged'] ? 0 : 1;
-    
+
     // Update flag status
     $stmt = $pdo->prepare("UPDATE posts SET flagged = ? WHERE id = ?");
     $stmt->execute([$new_flag, $post_id]);
@@ -58,27 +59,26 @@ try {
     // Log the moderation action
     $action = $new_flag === 1 ? 'flag_post' : 'unflag_post';
     $moderator_id = getCurrentUserId();
-    
+
     $stmt = $pdo->prepare("INSERT INTO moderation_logs (moderator_id, action, target_type, target_id, reason) VALUES (?, ?, 'post', ?, ?)");
     $stmt->execute([$moderator_id, $action, $post_id, $reason]);
-    
+
     // Also log to file
     $stmt = $pdo->prepare("SELECT username FROM users WHERE id = ?");
     $stmt->execute([$moderator_id]);
     $moderator = $stmt->fetch();
-    
+
     if ($moderator) {
         Logger::logModeration($action, $moderator['username'], 'post', $post_id, $reason);
     }
 
     $message = $new_flag === 1 ? 'Post flagged successfully' : 'Post unflagged successfully';
-    
+
     echo json_encode([
         'success' => true,
         'flagged' => (bool)$new_flag,
         'message' => $message
     ]);
-
 } catch (PDOException $e) {
     ob_clean();
     header('Content-Type: application/json');
