@@ -318,6 +318,9 @@ include '../includes/header.php';
                                 </td>
                                 <td><?php echo timeAgo($post['created_at']); ?></td>
                                 <td>
+                                    <a href="posts.php#post-<?php echo $post['id']; ?>" class="btn btn-sm btn-outline-info" title="View post">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
                                     <form method="POST" class="d-inline">
                                         <input type="hidden" name="post_id" value="<?php echo $post['id']; ?>">
                                         <input type="hidden" name="current_flag" value="<?php echo $post['flagged'] ? 1 : 0; ?>">

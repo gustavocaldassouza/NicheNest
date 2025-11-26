@@ -67,6 +67,7 @@ $stmt = $pdo->prepare("
 $stmt->execute();
 $posts = $stmt->fetchAll();
 
+$isAdminUser = isAdmin();
 $page_title = "Community Posts - NicheNest";
 include '../includes/header.php';
 ?>
@@ -136,22 +137,39 @@ include '../includes/header.php';
                     </div>
                 <?php else: ?>
                     <?php foreach ($posts as $post): ?>
-                        <div class="card mb-4">
-                            <div class="card-header d-flex justify-content-between align-items-center">
+                        <div class="card mb-4 <?php echo $post['flagged'] ? 'border-warning' : ''; ?>">
+                            <div class="card-header d-flex justify-content-between align-items-center <?php echo $post['flagged'] ? 'bg-warning bg-opacity-25' : ''; ?>">
                                 <div>
+                                    <?php if ($post['flagged']): ?>
+                                        <span class="badge bg-warning text-dark me-2" title="This post has been flagged for review">
+                                            <i class="bi bi-flag-fill"></i> Flagged
+                                        </span>
+                                    <?php endif; ?>
                                     <strong><?php echo htmlspecialchars($post['display_name'] ?? $post['username']); ?></strong>
                                     <small class="text-muted"><?php echo timeAgo($post['created_at']); ?></small>
                                 </div>
-                                <?php if (isPostOwner($post['id'], getCurrentUserId())): ?>
-                                    <div class="btn-group" role="group">
+                                <div class="btn-group" role="group">
+                                    <?php if (isPostOwner($post['id'], getCurrentUserId())): ?>
                                         <a href="edit_post.php?id=<?php echo $post['id']; ?>" class="btn btn-sm btn-outline-primary" title="Edit post">
                                             <i class="bi bi-pencil"></i>
                                         </a>
                                         <button type="button" class="btn btn-sm btn-outline-danger delete-post-btn" data-post-id="<?php echo $post['id']; ?>" title="Delete post">
                                             <i class="bi bi-trash"></i>
                                         </button>
-                                    </div>
-                                <?php endif; ?>
+                                    <?php endif; ?>
+                                    <?php if ($isAdminUser && !isPostOwner($post['id'], getCurrentUserId())): ?>
+                                        <button type="button" 
+                                            class="btn btn-sm btn-<?php echo $post['flagged'] ? 'secondary' : 'warning'; ?> admin-flag-btn" 
+                                            data-post-id="<?php echo $post['id']; ?>" 
+                                            data-flagged="<?php echo $post['flagged'] ? 'true' : 'false'; ?>"
+                                            title="<?php echo $post['flagged'] ? 'Unflag post' : 'Flag post for review'; ?>">
+                                            <i class="bi bi-flag<?php echo $post['flagged'] ? '-fill' : ''; ?>"></i>
+                                        </button>
+                                        <button type="button" class="btn btn-sm btn-outline-danger admin-delete-btn" data-post-id="<?php echo $post['id']; ?>" title="Delete post (Admin)">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    <?php endif; ?>
+                                </div>
                             </div>
                             <div class="card-body" id="post-<?php echo $post['id']; ?>">
                                 <h5 class="card-title"><?php echo htmlspecialchars($post['title']); ?></h5>

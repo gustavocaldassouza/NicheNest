@@ -376,6 +376,127 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
+    // Handle admin flag post buttons
+    const adminFlagButtons = document.querySelectorAll('.admin-flag-btn');
+    adminFlagButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            const postId = this.getAttribute('data-post-id');
+            const isFlagged = this.getAttribute('data-flagged') === 'true';
+            const action = isFlagged ? 'unflag' : 'flag';
+            
+            if (!confirm(`Are you sure you want to ${action} this post?`)) {
+                return;
+            }
+
+            const postCard = this.closest('.card');
+            const cardHeader = postCard.querySelector('.card-header');
+            
+            this.disabled = true;
+            const originalHTML = this.innerHTML;
+            this.innerHTML = '<span class="spinner-border spinner-border-sm" role="status"></span>';
+
+            const formData = new FormData();
+            formData.append('post_id', postId);
+
+            fetch('/ajax/flag_post.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Update button state
+                    this.setAttribute('data-flagged', data.flagged.toString());
+                    this.className = `btn btn-sm btn-${data.flagged ? 'secondary' : 'warning'} admin-flag-btn`;
+                    this.innerHTML = `<i class="bi bi-flag${data.flagged ? '-fill' : ''}"></i>`;
+                    this.title = data.flagged ? 'Unflag post' : 'Flag post for review';
+                    
+                    // Update card styling
+                    if (data.flagged) {
+                        postCard.classList.add('border-warning');
+                        cardHeader.classList.add('bg-warning', 'bg-opacity-25');
+                        // Add flagged badge if not exists
+                        if (!cardHeader.querySelector('.badge.bg-warning')) {
+                            const badge = document.createElement('span');
+                            badge.className = 'badge bg-warning text-dark me-2';
+                            badge.title = 'This post has been flagged for review';
+                            badge.innerHTML = '<i class="bi bi-flag-fill"></i> Flagged';
+                            cardHeader.querySelector('div').insertBefore(badge, cardHeader.querySelector('div').firstChild);
+                        }
+                    } else {
+                        postCard.classList.remove('border-warning');
+                        cardHeader.classList.remove('bg-warning', 'bg-opacity-25');
+                        // Remove flagged badge
+                        const badge = cardHeader.querySelector('.badge.bg-warning');
+                        if (badge) badge.remove();
+                    }
+                    
+                    showAlert(data.message, 'success');
+                } else {
+                    showAlert(data.message, 'danger');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showAlert('An error occurred while updating the post flag.', 'danger');
+            })
+            .finally(() => {
+                this.disabled = false;
+                if (this.innerHTML.includes('spinner')) {
+                    const isFlaggedNow = this.getAttribute('data-flagged') === 'true';
+                    this.innerHTML = `<i class="bi bi-flag${isFlaggedNow ? '-fill' : ''}"></i>`;
+                }
+            });
+        });
+    });
+
+    // Handle admin delete post buttons
+    const adminDeleteButtons = document.querySelectorAll('.admin-delete-btn');
+    adminDeleteButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            if (!confirm('Are you sure you want to delete this post? This action cannot be undone.')) {
+                return;
+            }
+
+            const postId = this.getAttribute('data-post-id');
+            const postCard = this.closest('.card');
+            
+            this.disabled = true;
+            const originalHTML = this.innerHTML;
+            this.innerHTML = '<span class="spinner-border spinner-border-sm" role="status"></span>';
+
+            const formData = new FormData();
+            formData.append('post_id', postId);
+
+            fetch('/ajax/delete_post.php', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Fade out and remove the post card
+                    postCard.style.transition = 'opacity 0.3s ease';
+                    postCard.style.opacity = '0';
+                    setTimeout(() => {
+                        postCard.remove();
+                    }, 300);
+                    showAlert(data.message, 'success');
+                } else {
+                    showAlert(data.message, 'danger');
+                    this.disabled = false;
+                    this.innerHTML = originalHTML;
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                showAlert('An error occurred while deleting the post.', 'danger');
+                this.disabled = false;
+                this.innerHTML = originalHTML;
+            });
+        });
+    });
+
 });
 
 function showAlert(message, type) {
