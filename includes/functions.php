@@ -3,16 +3,12 @@
 
 /**
  * Sanitize input data
- * Note: htmlspecialchars should be applied when displaying, not when storing
  */
 function sanitizeInput($data)
 {
-    if ($data === null) {
-        return '';
-    }
     $data = trim($data);
     $data = stripslashes($data);
-    // Removed htmlspecialchars - should be done on output, not input
+    $data = htmlspecialchars($data);
     return $data;
 }
 

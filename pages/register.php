@@ -20,10 +20,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $errors[] = 'Username is required';
     } elseif (strlen($username) < 3) {
         $errors[] = 'Username must be at least 3 characters';
-    } elseif (strlen($username) > 50) {
-        $errors[] = 'Username must be 50 characters or less';
-    } elseif (!preg_match('/^[a-zA-Z0-9_]+$/', $username)) {
-        $errors[] = 'Username can only contain letters, numbers, and underscores';
     }
 
     if (empty($email)) {
@@ -43,17 +39,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     if (empty($errors)) {
-        // Check username and email separately for better error messages
-        $stmt = $pdo->prepare("SELECT id FROM users WHERE username = ?");
-        $stmt->execute([$username]);
+        $stmt = $pdo->prepare("SELECT id FROM users WHERE username = ? OR email = ?");
+        $stmt->execute([$username, $email]);
         if ($stmt->fetch()) {
-            $errors[] = 'Username already taken. Please choose another one.';
-        }
-        
-        $stmt = $pdo->prepare("SELECT id FROM users WHERE email = ?");
-        $stmt->execute([$email]);
-        if ($stmt->fetch()) {
-            $errors[] = 'Email already registered. Please use another email or login.';
+            $errors[] = 'Username or email already exists';
         }
     }
 
@@ -68,8 +57,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 'email' => $email
             ]);
 
-            // mark session so the subsequent first login shows a welcome (not "Welcome back")
-            $_SESSION['just_registered'] = true;
             setFlashMessage('Registration successful! Please log in.', 'success');
             redirect('login.php');
         } catch (PDOException $e) {
@@ -110,11 +97,7 @@ include '../includes/header.php';
                             <div class="mb-3">
                                 <label for="username" class="form-label">Username</label>
                                 <input type="text" class="form-control" id="username" name="username"
-                                    value="<?php echo htmlspecialchars($_POST['username'] ?? ''); ?>" 
-                                    pattern="[a-zA-Z0-9_]{3,}" 
-                                    title="Username can only contain letters, numbers, and underscores (minimum 3 characters)"
-                                    required>
-                                <div class="form-text">Must be unique, at least 3 characters</div>
+                                    value="<?php echo htmlspecialchars($_POST['username'] ?? ''); ?>" required>
                             </div>
 
                             <div class="mb-3">

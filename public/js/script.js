@@ -1,7 +1,6 @@
 document.addEventListener('DOMContentLoaded', function () {
     initializeAccessibility();
     initializeNotifications();
-    checkForSuccessMessages();
 
     const likeButtons = document.querySelectorAll('.like-btn');
 
@@ -376,127 +375,6 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
-    // Handle admin flag post buttons
-    const adminFlagButtons = document.querySelectorAll('.admin-flag-btn');
-    adminFlagButtons.forEach(button => {
-        button.addEventListener('click', function() {
-            const postId = this.getAttribute('data-post-id');
-            const isFlagged = this.getAttribute('data-flagged') === 'true';
-            const action = isFlagged ? 'unflag' : 'flag';
-            
-            if (!confirm(`Are you sure you want to ${action} this post?`)) {
-                return;
-            }
-
-            const postCard = this.closest('.card');
-            const cardHeader = postCard.querySelector('.card-header');
-            
-            this.disabled = true;
-            const originalHTML = this.innerHTML;
-            this.innerHTML = '<span class="spinner-border spinner-border-sm" role="status"></span>';
-
-            const formData = new FormData();
-            formData.append('post_id', postId);
-
-            fetch('/ajax/flag_post.php', {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    // Update button state
-                    this.setAttribute('data-flagged', data.flagged.toString());
-                    this.className = `btn btn-sm btn-${data.flagged ? 'secondary' : 'warning'} admin-flag-btn`;
-                    this.innerHTML = `<i class="bi bi-flag${data.flagged ? '-fill' : ''}"></i>`;
-                    this.title = data.flagged ? 'Unflag post' : 'Flag post for review';
-                    
-                    // Update card styling
-                    if (data.flagged) {
-                        postCard.classList.add('border-warning');
-                        cardHeader.classList.add('bg-warning', 'bg-opacity-25');
-                        // Add flagged badge if not exists
-                        if (!cardHeader.querySelector('.badge.bg-warning')) {
-                            const badge = document.createElement('span');
-                            badge.className = 'badge bg-warning text-dark me-2';
-                            badge.title = 'This post has been flagged for review';
-                            badge.innerHTML = '<i class="bi bi-flag-fill"></i> Flagged';
-                            cardHeader.querySelector('div').insertBefore(badge, cardHeader.querySelector('div').firstChild);
-                        }
-                    } else {
-                        postCard.classList.remove('border-warning');
-                        cardHeader.classList.remove('bg-warning', 'bg-opacity-25');
-                        // Remove flagged badge
-                        const badge = cardHeader.querySelector('.badge.bg-warning');
-                        if (badge) badge.remove();
-                    }
-                    
-                    showAlert(data.message, 'success');
-                } else {
-                    showAlert(data.message, 'danger');
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                showAlert('An error occurred while updating the post flag.', 'danger');
-            })
-            .finally(() => {
-                this.disabled = false;
-                if (this.innerHTML.includes('spinner')) {
-                    const isFlaggedNow = this.getAttribute('data-flagged') === 'true';
-                    this.innerHTML = `<i class="bi bi-flag${isFlaggedNow ? '-fill' : ''}"></i>`;
-                }
-            });
-        });
-    });
-
-    // Handle admin delete post buttons
-    const adminDeleteButtons = document.querySelectorAll('.admin-delete-btn');
-    adminDeleteButtons.forEach(button => {
-        button.addEventListener('click', function() {
-            if (!confirm('Are you sure you want to delete this post? This action cannot be undone.')) {
-                return;
-            }
-
-            const postId = this.getAttribute('data-post-id');
-            const postCard = this.closest('.card');
-            
-            this.disabled = true;
-            const originalHTML = this.innerHTML;
-            this.innerHTML = '<span class="spinner-border spinner-border-sm" role="status"></span>';
-
-            const formData = new FormData();
-            formData.append('post_id', postId);
-
-            fetch('/ajax/delete_post.php', {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    // Fade out and remove the post card
-                    postCard.style.transition = 'opacity 0.3s ease';
-                    postCard.style.opacity = '0';
-                    setTimeout(() => {
-                        postCard.remove();
-                    }, 300);
-                    showAlert(data.message, 'success');
-                } else {
-                    showAlert(data.message, 'danger');
-                    this.disabled = false;
-                    this.innerHTML = originalHTML;
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                showAlert('An error occurred while deleting the post.', 'danger');
-                this.disabled = false;
-                this.innerHTML = originalHTML;
-            });
-        });
-    });
-
 });
 
 function showAlert(message, type) {
@@ -504,99 +382,23 @@ function showAlert(message, type) {
         type = 'info';
     }
     
-    showToast(message, type);
-}
+    const alertContainer = document.createElement('div');
+    alertContainer.className = 'alert alert-' + type + ' alert-dismissible fade show';
+    alertContainer.setAttribute('role', 'alert');
+    alertContainer.innerHTML = message + '<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>';
 
-function showToast(message, type, duration) {
-    if (typeof type === 'undefined') {
-        type = 'info';
-    }
-    if (typeof duration === 'undefined') {
-        duration = 4000;
-    }
-    
-    // Create toast container if it doesn't exist
-    let toastContainer = document.getElementById('toast-container');
-    if (!toastContainer) {
-        toastContainer = document.createElement('div');
-        toastContainer.id = 'toast-container';
-        toastContainer.className = 'toast-container';
-        toastContainer.setAttribute('aria-live', 'polite');
-        toastContainer.setAttribute('aria-atomic', 'true');
-        document.body.appendChild(toastContainer);
-    }
-    
-    // Define icons for each type
-    const icons = {
-        'success': 'bi-check-circle-fill',
-        'danger': 'bi-x-circle-fill',
-        'warning': 'bi-exclamation-triangle-fill',
-        'info': 'bi-info-circle-fill'
-    };
-    
-    // Create toast element
-    const toast = document.createElement('div');
-    toast.className = `toast-notification toast-${type}`;
-    toast.setAttribute('role', 'alert');
-    toast.innerHTML = `
-        <i class="bi ${icons[type] || icons['info']} toast-icon"></i>
-        <span class="toast-message">${message}</span>
-        <button type="button" class="toast-close" aria-label="Close">
-            <i class="bi bi-x"></i>
-        </button>
-    `;
-    
-    // Add to container
-    toastContainer.appendChild(toast);
-    
-    // Close button functionality
-    const closeBtn = toast.querySelector('.toast-close');
-    closeBtn.addEventListener('click', function() {
-        hideToast(toast);
-    });
-    
-    // Auto-hide after duration
-    setTimeout(function() {
-        hideToast(toast);
-    }, duration);
-    
-    // Announce to screen readers
-    announceToScreenReader(message);
-}
+    const container = document.querySelector('.container');
+    if (container) {
+        container.insertBefore(alertContainer, container.firstChild);
 
-function hideToast(toast) {
-    if (toast && !toast.classList.contains('toast-hiding')) {
-        toast.classList.add('toast-hiding');
         setTimeout(function() {
-            if (toast.parentNode) {
-                toast.parentNode.removeChild(toast);
+            if (typeof bootstrap !== 'undefined' && bootstrap.Alert) {
+                const bsAlert = new bootstrap.Alert(alertContainer);
+                bsAlert.close();
+            } else {
+                alertContainer.remove();
             }
-        }, 300);
-    }
-}
-
-function checkForSuccessMessages() {
-    // Check URL for success parameter (e.g., after creating a post)
-    const urlParams = new URLSearchParams(window.location.search);
-    
-    if (urlParams.get('success') === '1') {
-        // Determine context based on current page
-        const currentPath = window.location.pathname;
-        let message = 'Action completed successfully!';
-        
-        if (currentPath.includes('posts.php')) {
-            message = 'Post created successfully!';
-        } else if (currentPath.includes('group_view.php')) {
-            message = 'Post created successfully!';
-        } else if (currentPath.includes('profile.php')) {
-            message = 'Profile updated successfully!';
-        }
-        
-        showToast(message, 'success');
-        
-        // Remove the success parameter from URL without refreshing
-        const newUrl = window.location.pathname + window.location.hash;
-        window.history.replaceState({}, document.title, newUrl);
+        }, 5000);
     }
 }
 
@@ -892,10 +694,30 @@ function setupAriaLiveRegions() {
         document.body.appendChild(alertContainer);
     }
 
-    // Override the existing showAlert function to use toast notifications
+    // Override the existing showAlert function to use ARIA live regions
     window.showAlert = function (message, type = 'info') {
-        // Use toast notification system
-        showToast(message, type);
+        // Visual alert (existing functionality)
+        const alertHtml = `
+            <div class="alert alert-${type} alert-dismissible fade show" role="alert">
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close alert"></button>
+            </div>
+        `;
+
+        const container = document.querySelector('.container');
+        if (container) {
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = alertHtml;
+            container.insertBefore(tempDiv.firstElementChild, container.firstElementChild);
+        }
+
+        // Announce to screen readers
+        alertContainer.textContent = message;
+
+        // Clear the announcement after a delay
+        setTimeout(() => {
+            alertContainer.textContent = '';
+        }, 5000);
     };
 }
 
@@ -997,109 +819,3 @@ function enhanceLikeButton(button) {
 
 // Apply enhancements to all like buttons
 document.querySelectorAll('.like-btn').forEach(enhanceLikeButton);
-
-// Username validation with real-time feedback
-document.addEventListener('DOMContentLoaded', function() {
-    const usernameInput = document.getElementById('username');
-    
-    if (usernameInput && !usernameInput.disabled) {
-        let timeoutId;
-        const originalUsername = usernameInput.value; // For profile edit
-        
-        usernameInput.addEventListener('input', function() {
-            clearTimeout(timeoutId);
-            const username = this.value.trim();
-            
-            // Remove any existing feedback
-            let feedbackDiv = this.parentElement.querySelector('.username-feedback');
-            if (feedbackDiv) {
-                feedbackDiv.remove();
-            }
-            
-            // Basic validation
-            if (username.length === 0) {
-                return;
-            }
-            
-            if (username.length < 3) {
-                showUsernameFeedback(this, 'Username must be at least 3 characters', 'warning');
-                return;
-            }
-
-            if (username.length > 50) {
-                showUsernameFeedback(this, 'Username cannot exceed 50 characters', 'danger');
-                return;
-            }
-
-            if (!/^[a-zA-Z0-9_]{3,50}$/.test(username)) {
-                showUsernameFeedback(this, 'Only letters, numbers, and underscores allowed (3-50 characters)', 'danger');
-                return;
-            }
-            
-            // Skip check if it's the same as original (for profile edit)
-            if (username === originalUsername) {
-                showUsernameFeedback(this, 'Current username', 'info');
-                return;
-            }
-            
-            // Check availability after 500ms delay
-            timeoutId = setTimeout(() => {
-                checkUsernameAvailability(username, this);
-            }, 500);
-        });
-    }
-});
-
-function showUsernameFeedback(inputElement, message, type) {
-    let feedbackDiv = inputElement.parentElement.querySelector('.username-feedback');
-    
-    if (!feedbackDiv) {
-        feedbackDiv = document.createElement('div');
-        feedbackDiv.className = 'username-feedback form-text';
-        feedbackDiv.setAttribute('role', 'status');
-        feedbackDiv.setAttribute('aria-live', 'polite');
-        inputElement.parentElement.appendChild(feedbackDiv);
-    }
-    
-    const icons = {
-        'success': 'bi-check-circle-fill',
-        'danger': 'bi-x-circle-fill',
-        'warning': 'bi-exclamation-triangle-fill',
-        'info': 'bi-info-circle-fill'
-    };
-    
-    feedbackDiv.className = `username-feedback form-text text-${type}`;
-    feedbackDiv.innerHTML = `<i class="bi ${icons[type]}"></i> ${message}`;
-}
-
-function checkUsernameAvailability(username, inputElement) {
-    // Show checking status
-    showUsernameFeedback(inputElement, 'Checking availability...', 'info');
-    
-    const formData = new FormData();
-    formData.append('username', username);
-    
-    fetch('/ajax/check_username.php', {
-        method: 'POST',
-        body: formData
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            if (data.available) {
-                showUsernameFeedback(inputElement, '✓ Username available!', 'success');
-            } else {
-                showUsernameFeedback(inputElement, '✗ Username already taken', 'danger');
-            }
-        } else {
-            // Show error message from server if available, else generic error
-            const errorMsg = data.message ? data.message : 'Error checking username';
-            showUsernameFeedback(inputElement, errorMsg, 'danger');
-        }
-    })
-    .catch(error => {
-        console.error('Error checking username:', error);
-        showUsernameFeedback(inputElement, 'Error checking username', 'danger');
-        showUsernameFeedback(inputElement, 'Could not check availability. Please try again.', 'warning');
-    });
-}
