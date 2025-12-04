@@ -35,7 +35,7 @@ RUN mkdir -p logs \
 
 # Copy and make init script executable
 COPY docker/init-db.sh /usr/local/bin/init-db.sh
-RUN chmod +x /usr/local/bin/init-db.sh
+RUN sed -i 's/\r$//' /usr/local/bin/init-db.sh && chmod +x /usr/local/bin/init-db.sh
 
 # Set permissions
 RUN chown -R www-data:www-data /var/www/html \
@@ -47,4 +47,4 @@ RUN chown -R www-data:www-data /var/www/html \
 EXPOSE 80
 
 # Use init script as entrypoint
-CMD ["/usr/local/bin/init-db.sh"]
+CMD ["bash", "/usr/local/bin/init-db.sh"]
