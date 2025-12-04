@@ -6,7 +6,8 @@ RUN apt-get update && apt-get install -y \
     zip \
     unzip \
     default-mysql-client \
-    && docker-php-ext-install pdo pdo_mysql zip
+    && docker-php-ext-install pdo pdo_mysql zip \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Enable mod_rewrite
 RUN a2enmod rewrite
@@ -29,13 +30,8 @@ COPY . .
 # Dump autoload
 RUN composer dump-autoload --optimize --no-dev
 
-# Create logs directory if it doesn't exist
-RUN mkdir -p logs \
-    && mkdir -p public/uploads
-
-# Copy and make init script executable
-COPY docker/init-db.sh /usr/local/bin/init-db.sh
-RUN sed -i 's/\r$//' /usr/local/bin/init-db.sh && chmod +x /usr/local/bin/init-db.sh
+# Create logs and uploads directories
+RUN mkdir -p logs public/uploads
 
 # Set permissions
 RUN chown -R www-data:www-data /var/www/html \
@@ -45,6 +41,3 @@ RUN chown -R www-data:www-data /var/www/html \
 
 # Expose port 80
 EXPOSE 80
-
-# Use init script as entrypoint
-CMD ["bash", "/usr/local/bin/init-db.sh"]
