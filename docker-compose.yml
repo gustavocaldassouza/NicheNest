@@ -4,8 +4,8 @@ services:
   app:
     build: .
     restart: always
-    ports:
-      - "${PORT:-80}:80"
+    expose:
+      - "80"
     environment:
       - DB_HOST=db
       - DB_NAME=${DB_NAME:-nichenest}
