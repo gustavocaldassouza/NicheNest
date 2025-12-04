@@ -16,7 +16,8 @@ services:
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - LOG_DIRECTORY=${LOG_DIRECTORY:-logs}
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     volumes:
       - uploads_data:/var/www/html/public/uploads
       - logs_data:/var/www/html/logs
@@ -29,6 +30,12 @@ services:
       - MYSQL_DATABASE=${DB_NAME:-nichenest}
       - MYSQL_USER=${DB_USER:-nichenest}
       - MYSQL_PASSWORD=${DB_PASS:-nichenest123}
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${DB_ROOT_PASS:-root}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
     volumes:
       - db_data:/var/lib/mysql
       - ./data/schema.sql:/docker-entrypoint-initdb.d/schema.sql
