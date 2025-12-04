@@ -12,6 +12,9 @@ RUN apt-get update && apt-get install -y \
 # Enable mod_rewrite
 RUN a2enmod rewrite
 
+# Configure Apache to allow .htaccess overrides
+COPY docker/apache.conf /etc/apache2/sites-available/000-default.conf
+
 # Set working directory
 WORKDIR /var/www/html
 
