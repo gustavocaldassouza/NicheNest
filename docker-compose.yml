@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    restart: always
+    ports:
+      - "${PORT:-80}:80"
+    environment:
+      - DB_HOST=db
+      - DB_NAME=${DB_NAME:-nichenest}
+      - DB_USER=${DB_USER:-nichenest}
+      - DB_PASS=${DB_PASS:-nichenest123}
+      - APP_URL=${APP_URL:-http://localhost}
+      - LOG_ENABLED=${LOG_ENABLED:-true}
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - LOG_DIRECTORY=${LOG_DIRECTORY:-logs}
+    depends_on:
+      - db
+    volumes:
+      - uploads_data:/var/www/html/public/uploads
+      - logs_data:/var/www/html/logs
+
+  db:
+    image: mysql:8.0
+    restart: always
+    environment:
+      - MYSQL_ROOT_PASSWORD=${DB_ROOT_PASS:-root}
+      - MYSQL_DATABASE=${DB_NAME:-nichenest}
+      - MYSQL_USER=${DB_USER:-nichenest}
+      - MYSQL_PASSWORD=${DB_PASS:-nichenest123}
+    volumes:
+      - db_data:/var/lib/mysql
+      - ./data/schema.sql:/docker-entrypoint-initdb.d/schema.sql
+
+volumes:
+  db_data:
+  uploads_data:
+  logs_data:
