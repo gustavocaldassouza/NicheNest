@@ -28,19 +28,30 @@ RewriteRule ^(.*)$ index.php [QSA,L]
 DirectoryIndex index.php index.html
 
 # Prevent access to sensitive files
-<Files ".env">
-    Order allow,deny
-    Deny from all
-</Files>
+<FilesMatch "^\.">
+    Require all denied
+</FilesMatch>
+
+<FilesMatch "^(composer\.json|composer\.lock|package\.json|package-lock\.json)$">
+    Require all denied
+</FilesMatch>
+
+<FilesMatch "^(Dockerfile|Dockerfile\.mysql|docker-compose\.yml|Procfile|app\.json)$">
+    Require all denied
+</FilesMatch>
+
+# Block access to includes and data directories
+<IfModule mod_rewrite.c>
+    RewriteRule ^includes/ - [F,L]
+    RewriteRule ^data/ - [F,L]
+</IfModule>
 
 <Files "config.php">
-    Order allow,deny
-    Deny from all
+    Require all denied
 </Files>
 
 <Files "*.log">
-    Order allow,deny
-    Deny from all
+    Require all denied
 </Files>
 
 # Note: Directory blocks not allowed in Heroku .htaccess

@@ -41,28 +41,43 @@ Logger::init([
     'max_files' => LOG_MAX_FILES
 ]);
 
-try {
-    $pdo = new PDO(
-        "mysql:host=" . DB_HOST . ";dbname=" . DB_NAME . ";charset=utf8mb4",
-        DB_USER,
-        DB_PASS,
-        [
-            PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
-            PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-            PDO::ATTR_EMULATE_PREPARES => false
-        ]
-    );
-    Logger::info("Database connection established successfully", [
-        'host' => DB_HOST,
-        'database' => DB_NAME
-    ]);
-} catch (PDOException $e) {
-    Logger::critical("Database connection failed", [
-        'error' => $e->getMessage(),
-        'host' => DB_HOST,
-        'database' => DB_NAME
-    ]);
-    die("Database connection failed: " . $e->getMessage());
+// Database connection with retry logic for container startup
+$pdo = null;
+$maxRetries = 10;
+$retryDelay = 3; // seconds
+
+for ($attempt = 1; $attempt <= $maxRetries; $attempt++) {
+    try {
+        $pdo = new PDO(
+            "mysql:host=" . DB_HOST . ";dbname=" . DB_NAME . ";charset=utf8mb4",
+            DB_USER,
+            DB_PASS,
+            [
+                PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+                PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+                PDO::ATTR_EMULATE_PREPARES => false
+            ]
+        );
+        Logger::info("Database connection established successfully", [
+            'host' => DB_HOST,
+            'database' => DB_NAME,
+            'attempt' => $attempt
+        ]);
+        break;
+    } catch (PDOException $e) {
+        if ($attempt === $maxRetries) {
+            Logger::critical("Database connection failed after $maxRetries attempts", [
+                'error' => $e->getMessage(),
+                'host' => DB_HOST,
+                'database' => DB_NAME
+            ]);
+            die("Database connection failed: " . $e->getMessage());
+        }
+        Logger::warning("Database connection attempt $attempt failed, retrying in {$retryDelay}s...", [
+            'error' => $e->getMessage()
+        ]);
+        sleep($retryDelay);
+    }
 }
 
 ob_start();

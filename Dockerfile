@@ -1,0 +1,50 @@
+FROM php:8.2-apache
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    libzip-dev \
+    zip \
+    unzip \
+    default-mysql-client \
+    && docker-php-ext-install pdo pdo_mysql zip \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# Enable mod_rewrite
+RUN a2enmod rewrite
+
+# Configure Apache to allow .htaccess overrides
+COPY docker/apache.conf /etc/apache2/sites-available/000-default.conf
+
+# Set working directory
+WORKDIR /var/www/html
+
+# Install Composer
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+
+# Copy composer files first to leverage caching
+COPY composer.json composer.lock ./
+
+# Install PHP dependencies
+RUN composer install --no-dev --optimize-autoloader --no-scripts --no-autoloader
+
+# Copy application files
+COPY . .
+
+# Dump autoload
+RUN composer dump-autoload --optimize --no-dev
+
+# Create logs and uploads directories
+RUN mkdir -p logs public/uploads
+
+# Set permissions
+RUN chown -R www-data:www-data /var/www/html \
+    && chmod -R 755 /var/www/html \
+    && chmod -R 775 /var/www/html/public/uploads \
+    && chmod -R 775 /var/www/html/logs \
+    && chmod +x /var/www/html/docker/entrypoint.sh
+
+# Expose port 80
+EXPOSE 80
+
+# Use custom entrypoint to initialize schema
+CMD ["/var/www/html/docker/entrypoint.sh"]
