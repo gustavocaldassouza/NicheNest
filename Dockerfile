@@ -40,7 +40,11 @@ RUN mkdir -p logs public/uploads
 RUN chown -R www-data:www-data /var/www/html \
     && chmod -R 755 /var/www/html \
     && chmod -R 775 /var/www/html/public/uploads \
-    && chmod -R 775 /var/www/html/logs
+    && chmod -R 775 /var/www/html/logs \
+    && chmod +x /var/www/html/docker/entrypoint.sh
 
 # Expose port 80
 EXPOSE 80
+
+# Use custom entrypoint to initialize schema
+CMD ["/var/www/html/docker/entrypoint.sh"]
