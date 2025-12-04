@@ -6,6 +6,8 @@ services:
     restart: always
     expose:
       - "80"
+    ports:
+      - "80"
     environment:
       - DB_HOST=db
       - DB_NAME=${DB_NAME:-nichenest}
