@@ -27,7 +27,7 @@ function getCurrentUser()
     }
 
     global $pdo;
-    $stmt = $pdo->prepare("SELECT id, username, email, display_name, avatar, created_at FROM users WHERE id = ?");
+    $stmt = $pdo->prepare("SELECT id, username, email, display_name, bio, avatar, role, status, created_at FROM users WHERE id = ?");
     $stmt->execute([getCurrentUserId()]);
     return $stmt->fetch();
 }
@@ -36,13 +36,13 @@ function loginUser($userId)
 {
     $_SESSION['user_id'] = $userId;
     $_SESSION['login_time'] = time();
-    
+
     // Log successful login
     global $pdo;
     $stmt = $pdo->prepare("SELECT username FROM users WHERE id = ?");
     $stmt->execute([$userId]);
     $user = $stmt->fetch();
-    
+
     if ($user) {
         Logger::logAuth('login', $user['username'], true);
     }
@@ -56,12 +56,12 @@ function logoutUser()
         $stmt = $pdo->prepare("SELECT username FROM users WHERE id = ?");
         $stmt->execute([getCurrentUserId()]);
         $user = $stmt->fetch();
-        
+
         if ($user) {
             Logger::logAuth('logout', $user['username'], true);
         }
     }
-    
+
     session_destroy();
     session_start();
 }
@@ -83,9 +83,10 @@ function isAdmin()
 function requireLogin()
 {
     if (!isLoggedIn()) {
-        Logger::warning("Unauthorized access attempt to protected page", [
+        Logger::logSecurity('unauthorized_access_attempt', Logger::WARNING, [
             'uri' => $_SERVER['REQUEST_URI'] ?? 'unknown',
-            'ip' => $_SERVER['REMOTE_ADDR'] ?? 'unknown'
+            'ip' => $_SERVER['REMOTE_ADDR'] ?? 'unknown',
+            'user_agent' => $_SERVER['HTTP_USER_AGENT'] ?? 'unknown'
         ]);
         setFlashMessage('Please log in to access this page.', 'warning');
         redirect('../pages/login.php');
@@ -96,9 +97,10 @@ function requireAdmin()
 {
     requireLogin();
     if (!isAdmin()) {
-        Logger::warning("Unauthorized admin access attempt", [
+        Logger::logSecurity('unauthorized_admin_access', Logger::CRITICAL, [
             'user_id' => getCurrentUserId(),
-            'uri' => $_SERVER['REQUEST_URI'] ?? 'unknown'
+            'uri' => $_SERVER['REQUEST_URI'] ?? 'unknown',
+            'ip' => $_SERVER['REMOTE_ADDR'] ?? 'unknown'
         ]);
         setFlashMessage('Access denied. Admin privileges required.', 'danger');
         redirect('../public/index.php');
@@ -112,6 +114,12 @@ function requireGroupOwner($groupId)
 {
     requireLogin();
     if (!isGroupOwner($groupId, getCurrentUserId())) {
+        Logger::logSecurity('unauthorized_group_owner_access', Logger::WARNING, [
+            'user_id' => getCurrentUserId(),
+            'group_id' => $groupId,
+            'uri' => $_SERVER['REQUEST_URI'] ?? 'unknown',
+            'ip' => $_SERVER['REMOTE_ADDR'] ?? 'unknown'
+        ]);
         setFlashMessage('Access denied. Group owner privileges required.', 'danger');
         redirect('../pages/groups.php');
     }
@@ -124,6 +132,12 @@ function requireGroupMember($groupId)
 {
     requireLogin();
     if (!canAccessGroup($groupId, getCurrentUserId())) {
+        Logger::logSecurity('unauthorized_group_access', Logger::WARNING, [
+            'user_id' => getCurrentUserId(),
+            'group_id' => $groupId,
+            'uri' => $_SERVER['REQUEST_URI'] ?? 'unknown',
+            'ip' => $_SERVER['REMOTE_ADDR'] ?? 'unknown'
+        ]);
         setFlashMessage('Access denied. You do not have permission to view this group.', 'danger');
         redirect('../pages/groups.php');
     }
