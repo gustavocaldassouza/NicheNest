@@ -31,7 +31,7 @@ services:
       - MYSQL_USER=${DB_USER:-nichenest}
       - MYSQL_PASSWORD=${DB_PASS:-nichenest123}
     healthcheck:
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${DB_ROOT_PASS:-root}"]
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
       interval: 5s
       timeout: 5s
       retries: 10
