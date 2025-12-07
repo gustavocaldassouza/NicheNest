@@ -28,13 +28,14 @@ document.addEventListener('DOMContentLoaded', function () {
                     if (data.success) {
                         const isLiked = data.liked;
                         this.innerHTML = `
-                            <i class="bi bi-heart${isLiked ? '-fill' : ''} me-1"></i>
-                            <span class="like-text">${isLiked ? 'Unlike' : 'Like'}</span>
-                            <span class="badge bg-${isLiked ? 'danger' : 'success'} ms-1 rounded-pill" style="font-size: 0.7em;">
+                            <i class="bi bi-heart${isLiked ? '-fill' : ''}"></i>
+                            <span class="like-text">${isLiked ? 'Liked' : 'Like'}</span>
+                            ${data.likeCount > 0 ? `
+                            <span class="badge rounded-pill bg-light text-dark border ms-1">
                                 ${data.likeCount}
-                            </span>
+                            </span>` : ''}
                         `;
-                        this.className = `btn btn-sm btn-outline-${isLiked ? 'danger' : 'success'} like-btn position-relative`;
+                        this.className = `btn-action like-btn ${isLiked ? 'liked' : ''}`;
                         this.setAttribute('data-liked', isLiked.toString());
 
                         this.classList.add('liked');
@@ -823,11 +824,11 @@ function updateReplyCount(postId, count) {
     const replyBtn = document.querySelector(`.reply-toggle[data-post-id="${postId}"]`);
     if (replyBtn) {
         // Update button text to show count if there are replies
+        let html = `<i class="bi bi-chat"></i> <span>Reply</span>`;
         if (count > 0) {
-            replyBtn.innerHTML = `<i class="bi bi-reply me-1"></i> Reply (${count})`;
-        } else {
-            replyBtn.innerHTML = `<i class="bi bi-reply me-1"></i> Reply`;
+            html += `<span class="badge rounded-pill bg-light text-dark border ms-1">${count}</span>`;
         }
+        replyBtn.innerHTML = html;
     } else {
         console.error('Reply button not found for updating count, post ID:', postId);
     }

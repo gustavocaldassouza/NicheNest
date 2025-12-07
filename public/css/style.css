@@ -1503,3 +1503,64 @@ p, li, span, div {
         width: 100%;
     }
 }
+/* ==============================================
+   Post Action Buttons (Like & Reply)
+   ============================================== */
+
+.post-actions {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 1rem;
+}
+
+.btn-action {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    border-radius: 50px;
+    font-weight: 500;
+    font-size: 0.9rem;
+    transition: all 0.2s ease;
+    border: 1px solid transparent;
+    background-color: transparent;
+    color: var(--text-secondary);
+}
+
+.btn-action:hover {
+    background-color: var(--bg-secondary);
+    color: var(--text-primary);
+    transform: translateY(-1px);
+    text-decoration: none;
+}
+
+.btn-action:active {
+    transform: translateY(0);
+}
+
+/* Like Button Specifics */
+.btn-action.like-btn:hover {
+    background-color: #fff0f0;
+    color: #dc3545;
+}
+
+.btn-action.like-btn.liked {
+    color: #dc3545;
+    background-color: #fff0f0;
+    border-color: #ffcdd2;
+}
+
+.btn-action.like-btn .bi-heart-fill {
+    color: #dc3545;
+}
+
+/* Reply Button Specifics */
+.btn-action.reply-btn:hover {
+    background-color: #e3f2fd;
+    color: #0d47a1;
+}
+
+.btn-action .badge {
+    font-weight: 600;
+    padding: 0.35em 0.65em;
+}

@@ -188,23 +188,31 @@ include '../includes/header.php';
                                 $userLiked = $stmt->rowCount() > 0;
                                 ?>
 
-                                <button type="button"
-                                    class="btn btn-sm btn-outline-<?php echo $userLiked ? 'danger' : 'success'; ?> like-btn position-relative"
-                                    data-post-id="<?php echo $post['id']; ?>"
-                                    data-liked="<?php echo $userLiked ? 'true' : 'false'; ?>"
-                                    style="transition: all 0.3s ease; border-radius: 20px;">
-                                    <i class="bi bi-heart<?php echo $userLiked ? '-fill' : ''; ?> me-1"></i>
-                                    <span class="like-text"><?php echo $userLiked ? 'Unlike' : 'Like'; ?></span>
-                                    <span class="badge bg-<?php echo $userLiked ? 'danger' : 'success'; ?> ms-1 rounded-pill" style="font-size: 0.7em;">
-                                        <?php echo $likeCount; ?>
-                                    </span>
-                                </button>
+                                <div class="post-actions">
+                                    <button type="button"
+                                        class="btn-action like-btn <?php echo $userLiked ? 'liked' : ''; ?>"
+                                        data-post-id="<?php echo $post['id']; ?>"
+                                        data-liked="<?php echo $userLiked ? 'true' : 'false'; ?>">
+                                        <i class="bi bi-heart<?php echo $userLiked ? '-fill' : ''; ?>"></i>
+                                        <span class="like-text"><?php echo $userLiked ? 'Liked' : 'Like'; ?></span>
+                                        <?php if ($likeCount > 0): ?>
+                                            <span class="badge rounded-pill bg-light text-dark border ms-1">
+                                                <?php echo $likeCount; ?>
+                                            </span>
+                                        <?php endif; ?>
+                                    </button>
 
-                                <button class="btn btn-sm btn-outline-primary reply-toggle"
-                                    data-post-id="<?php echo $post['id']; ?>"
-                                    style="transition: all 0.3s ease; border-radius: 20px;">
-                                    <i class="bi bi-reply me-1"></i> Reply<?php echo $post['replies_count'] > 0 ? ' (' . $post['replies_count'] . ')' : ''; ?>
-                                </button>
+                                    <button class="btn-action reply-btn reply-toggle"
+                                        data-post-id="<?php echo $post['id']; ?>">
+                                        <i class="bi bi-chat"></i>
+                                        <span>Reply</span>
+                                        <?php if ($post['replies_count'] > 0): ?>
+                                            <span class="badge rounded-pill bg-light text-dark border ms-1">
+                                                <?php echo $post['replies_count']; ?>
+                                            </span>
+                                        <?php endif; ?>
+                                    </button>
+                                </div>
 
                                 <form method="POST" class="reply-form mt-3 d-none" id="reply-form-<?php echo $post['id']; ?>">
                                     <input type="hidden" name="post_id" value="<?php echo $post['id']; ?>">
