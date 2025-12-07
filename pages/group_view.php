@@ -333,9 +333,11 @@ include '../includes/header.php';
 
                                     <?php if ($isMember): ?>
                                         <!-- Reply Button -->
-                                        <button class="btn btn-sm btn-outline-primary reply-toggle" data-post-id="<?php echo $post['id']; ?>">
-                                            <i class="bi bi-reply"></i> Reply
-                                        </button>
+                                        <div class="post-actions">
+                                            <button class="btn-action reply-btn reply-toggle" data-post-id="<?php echo $post['id']; ?>">
+                                                <i class="bi bi-chat"></i> Reply
+                                            </button>
+                                        </div>
 
                                         <!-- Reply Form (hidden by default) -->
                                         <form method="POST" class="reply-form mt-3 d-none" id="reply-form-<?php echo $post['id']; ?>">

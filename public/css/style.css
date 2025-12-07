@@ -4,8 +4,8 @@
 
 :root {
     /* Primary Colors - Enhanced for better contrast */
-    --primary-color: #0056b3;        /* Darker blue for better contrast */
-    --primary-hover: #004494;        /* Even darker for hover states */
+    --primary-color: #0d47a1;        /* Deep blue matching the logo */
+    --primary-hover: #0a3578;        /* Even darker for hover states */
     --primary-light: #e3f2fd;        /* Light blue for backgrounds */
     
     /* Semantic Colors - WCAG AA compliant */
@@ -131,11 +131,11 @@ main .container {
 .navbar-brand {
     font-weight: 700;
     font-size: 1.5rem;
-    color: var(--text-white) !important;
+    /* Removed color override to allow image to show naturally and text to adapt if present */
 }
 
 .hero-section {
-    background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-hover) 100%);
+    background: linear-gradient(135deg, #0d47a1 0%, #1565c0 100%);
     border-radius: 0 0 15px 15px;
     color: var(--text-white) !important;
 }
@@ -1502,4 +1502,65 @@ p, li, span, div {
         max-width: none;
         width: 100%;
     }
+}
+/* ==============================================
+   Post Action Buttons (Like & Reply)
+   ============================================== */
+
+.post-actions {
+    display: flex;
+    gap: 0.5rem;
+    margin-top: 1rem;
+}
+
+.btn-action {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    border-radius: 50px;
+    font-weight: 500;
+    font-size: 0.9rem;
+    transition: all 0.2s ease;
+    border: 1px solid transparent;
+    background-color: transparent;
+    color: var(--text-secondary);
+}
+
+.btn-action:hover {
+    background-color: var(--bg-secondary);
+    color: var(--text-primary);
+    transform: translateY(-1px);
+    text-decoration: none;
+}
+
+.btn-action:active {
+    transform: translateY(0);
+}
+
+/* Like Button Specifics */
+.btn-action.like-btn:hover {
+    background-color: #fff0f0;
+    color: #dc3545;
+}
+
+.btn-action.like-btn.liked {
+    color: #dc3545;
+    background-color: #fff0f0;
+    border-color: #ffcdd2;
+}
+
+.btn-action.like-btn .bi-heart-fill {
+    color: #dc3545;
+}
+
+/* Reply Button Specifics */
+.btn-action.reply-btn:hover {
+    background-color: #e3f2fd;
+    color: #0d47a1;
+}
+
+.btn-action .badge {
+    font-weight: 600;
+    padding: 0.35em 0.65em;
 }
