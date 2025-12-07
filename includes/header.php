@@ -24,16 +24,19 @@ if (!function_exists('getUnreadNotificationCount')) {
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
 
+    <!-- Favicon -->
+    <link rel="icon" type="image/jpeg" href="/public/images/logo.jpeg">
+
     <!-- Custom CSS -->
     <link rel="stylesheet" href="/public/css/style.css">
 </head>
 
 <body>
     <a href="#main-content" class="visually-hidden-focusable btn btn-primary position-absolute" style="top: 10px; left: 10px; z-index: 9999;">Skip to main content</a>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark" role="navigation" aria-label="Main navigation">
+    <nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm" role="navigation" aria-label="Main navigation">
         <div class="container">
-            <a class="navbar-brand fw-bold" href="/" aria-label="NicheNest home page">
-                <i class="bi bi-people-fill" aria-hidden="true"></i> NicheNest
+            <a class="navbar-brand fw-bold p-0" href="/" aria-label="NicheNest home page">
+                <img src="/public/images/logo.jpeg" alt="NicheNest" height="50" class="d-inline-block align-middle">
             </a>
 
             <button class="navbar-toggler" type="button"

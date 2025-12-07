@@ -4,8 +4,8 @@
 
 :root {
     /* Primary Colors - Enhanced for better contrast */
-    --primary-color: #0056b3;        /* Darker blue for better contrast */
-    --primary-hover: #004494;        /* Even darker for hover states */
+    --primary-color: #0d47a1;        /* Deep blue matching the logo */
+    --primary-hover: #0a3578;        /* Even darker for hover states */
     --primary-light: #e3f2fd;        /* Light blue for backgrounds */
     
     /* Semantic Colors - WCAG AA compliant */
@@ -131,11 +131,11 @@ main .container {
 .navbar-brand {
     font-weight: 700;
     font-size: 1.5rem;
-    color: var(--text-white) !important;
+    /* Removed color override to allow image to show naturally and text to adapt if present */
 }
 
 .hero-section {
-    background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-hover) 100%);
+    background: linear-gradient(135deg, #0d47a1 0%, #1565c0 100%);
     border-radius: 0 0 15px 15px;
     color: var(--text-white) !important;
 }
